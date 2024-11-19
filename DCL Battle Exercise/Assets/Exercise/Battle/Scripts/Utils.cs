@@ -12,7 +12,7 @@ public static class Utils
     }
 
     public static Vector3 GetCenter<T>(List<T> objects)
-        where T : Component
+        where T : MonoBehaviour
     {
         Vector3 result = Vector3.zero;
 
@@ -28,37 +28,21 @@ public static class Utils
         return result;
     }
 
-    public static Vector3 GetCenter(List<GameObject> objects)
+    public static float GetNearestEnemy(GameObject source, List<UnitBase> enemies, out UnitBase nearestEnemy)
     {
-        // TODO not getting the center, getting average position?
+        // TODO convert to return bool if successful so the caller doesn't need to check a UnityObject for null
 
-        Vector3 result = Vector3.zero;
-
-        foreach(GameObject o in objects)
-        {
-            result += o.transform.position;
-        }
-
-        result.x /= objects.Count;
-        result.y /= objects.Count;
-        result.z /= objects.Count;
-
-        return result;
-    }
-
-    public static float GetNearestObject(GameObject source, List<GameObject> objects, out GameObject nearestObject)
-    {
         float minDist = float.MaxValue;
-        nearestObject = null;
+        nearestEnemy = null;
 
-        foreach(GameObject obj in objects)
+        foreach(UnitBase enemy in enemies)
         {
-            float dist = Vector3.Distance(source.transform.position, obj.transform.position);
+            float dist = Vector3.Distance(source.transform.position, enemy.transform.position);
 
             if(dist < minDist)
             {
                 minDist = dist;
-                nearestObject = obj;
+                nearestEnemy = enemy;
             }
         }
 

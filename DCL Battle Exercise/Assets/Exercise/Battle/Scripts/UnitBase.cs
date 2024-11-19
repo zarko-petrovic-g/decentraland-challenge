@@ -24,11 +24,13 @@ public abstract class UnitBase : MonoBehaviour
         if(health < 0)
             return;
 
-        List<GameObject> allies = army.GetUnits();
-        List<GameObject> enemies = army.enemyArmy.GetUnits();
+        List<UnitBase> allies = army.Units;
+        List<UnitBase> enemies = army.EnemyArmy.Units;
 
-        UpdateBasicRules(allies, enemies);
+        attackCooldown -= Time.deltaTime;
+        EvadeOtherUnits();
 
+        // TODO use strategy pattern
         switch(armyModel.strategy)
         {
             case ArmyStrategy.Defensive:
@@ -44,11 +46,11 @@ public abstract class UnitBase : MonoBehaviour
         lastPosition = transform.position;
     }
 
-    public abstract void Attack(GameObject enemy);
+    public abstract void Attack(UnitBase enemy);
 
 
-    protected abstract void UpdateDefensive(List<GameObject> allies, List<GameObject> enemies);
-    protected abstract void UpdateBasic(List<GameObject> allies, List<GameObject> enemies);
+    protected abstract void UpdateDefensive(List<UnitBase> allies, List<UnitBase> enemies);
+    protected abstract void UpdateBasic(List<UnitBase> allies, List<UnitBase> enemies);
 
     public virtual void Move(Vector3 delta)
     {
@@ -60,6 +62,7 @@ public abstract class UnitBase : MonoBehaviour
 
     public virtual void Hit(GameObject sourceGo)
     {
+        // TODO avoid all these getcomponents
         var source = sourceGo.GetComponent<UnitBase>();
         float sourceAttack = 0;
 
@@ -79,10 +82,7 @@ public abstract class UnitBase : MonoBehaviour
         {
             transform.forward = sourceGo.transform.position - transform.position;
 
-            if(this is Warrior)
-                army.warriors.Remove(this as Warrior);
-            else if(this is Archer)
-                army.archers.Remove(this as Archer);
+            army.Remove(this);
 
             var animator = GetComponentInChildren<Animator>();
             animator?.SetTrigger("Death");
@@ -94,16 +94,12 @@ public abstract class UnitBase : MonoBehaviour
         }
     }
 
-    private void UpdateBasicRules(List<GameObject> allies, List<GameObject> enemies)
+    private void EvadeOtherUnits()
     {
-        attackCooldown -= Time.deltaTime;
-        EvadeAllies(allies);
-    }
+        List<UnitBase> allUnits = army.Units.Union(army.EnemyArmy.Units).ToList();
 
-    private void EvadeAllies(List<GameObject> allies)
-    {
-        List<GameObject> allUnits = army.GetUnits().Union(army.enemyArmy.GetUnits()).ToList();
-
+        // TODO calculate center only once per frame, probably in BattleInstantiator
+        // TODO move clamp position out of this method, this should just evade units
         Vector3 center = Utils.GetCenter(allUnits);
 
         float centerDist = Vector3.Distance(gameObject.transform.position, center);
@@ -115,7 +111,7 @@ public abstract class UnitBase : MonoBehaviour
             return;
         }
 
-        foreach(GameObject obj in allUnits)
+        foreach(UnitBase obj in allUnits)
         {
             float dist = Vector3.Distance(gameObject.transform.position, obj.transform.position);
 

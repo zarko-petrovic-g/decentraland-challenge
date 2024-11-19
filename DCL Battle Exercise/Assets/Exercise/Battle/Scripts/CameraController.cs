@@ -18,8 +18,7 @@ public class CameraController : MonoBehaviour
 
     private void LateUpdate()
     {
-        Vector3 mainCenter = Utils.GetCenter(army1.GetUnits()) + Utils.GetCenter(army2.GetUnits());
-        mainCenter *= 0.5f;
+        Vector3 mainCenter = (army1.Center + army2.Center) * 0.5f;
 
         Vector3 forwardTarget = (mainCenter - cachedPosition).normalized;
 

@@ -16,7 +16,7 @@ public class Archer : UnitBase
         postAttackDelay = 1f;
     }
 
-    public override void Attack(GameObject enemy)
+    public override void Attack(UnitBase enemy)
     {
         if(attackCooldown > 0)
             return;
@@ -34,7 +34,7 @@ public class Archer : UnitBase
         var animator = GetComponentInChildren<Animator>();
         animator?.SetTrigger("Attack");
 
-        if(army == BattleInstantiator.instance.army1)
+        if(army == BattleInstantiator.instance.Army1)
             arrow.GetComponent<Renderer>().material.color = BattleInstantiator.instance.Army1Color;
         else
             arrow.GetComponent<Renderer>().material.color = BattleInstantiator.instance.Army2Color;
@@ -45,7 +45,7 @@ public class Archer : UnitBase
         Destroy(gameObject);
     }
 
-    protected override void UpdateDefensive(List<GameObject> allies, List<GameObject> enemies)
+    protected override void UpdateDefensive(List<UnitBase> allies, List<UnitBase> enemies)
     {
         Vector3 enemyCenter = Utils.GetCenter(enemies);
         float distToEnemyX = Mathf.Abs(enemyCenter.x - transform.position.x);
@@ -59,7 +59,7 @@ public class Archer : UnitBase
                 Move(Vector3.right);
         }
 
-        float distToNearest = Utils.GetNearestObject(gameObject, enemies, out GameObject nearestEnemy);
+        float distToNearest = Utils.GetNearestEnemy(gameObject, enemies, out UnitBase nearestEnemy);
 
         if(nearestEnemy == null)
             return;
@@ -82,9 +82,9 @@ public class Archer : UnitBase
         Attack(nearestEnemy);
     }
 
-    protected override void UpdateBasic(List<GameObject> allies, List<GameObject> enemies)
+    protected override void UpdateBasic(List<UnitBase> allies, List<UnitBase> enemies)
     {
-        Utils.GetNearestObject(gameObject, enemies, out GameObject nearestEnemy);
+        Utils.GetNearestEnemy(gameObject, enemies, out UnitBase nearestEnemy);
 
         if(nearestEnemy == null)
             return;

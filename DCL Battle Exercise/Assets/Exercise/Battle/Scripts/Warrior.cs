@@ -7,7 +7,7 @@ public class Warrior : UnitBase
     [NonSerialized]
     public float attackRange = 2.5f;
 
-    void Awake()
+    private void Awake()
     {
         health = 50;
         defense = 5;
@@ -16,17 +16,17 @@ public class Warrior : UnitBase
         postAttackDelay = 0;
     }
 
-    public override void Attack( GameObject target )
+    public override void Attack(UnitBase target)
     {
-        if ( attackCooldown > 0 )
+        if(attackCooldown > 0)
             return;
 
-        if ( Vector3.Distance(transform.position, target.transform.position) > attackRange )
+        if(Vector3.Distance(transform.position, target.transform.position) > attackRange)
             return;
 
-        UnitBase targetUnit = target.GetComponentInChildren<UnitBase>();
+        var targetUnit = target.GetComponentInChildren<UnitBase>();
 
-        if ( targetUnit == null )
+        if(targetUnit == null)
             return;
 
         attackCooldown = maxAttackCooldown;
@@ -34,7 +34,7 @@ public class Warrior : UnitBase
         var animator = GetComponentInChildren<Animator>();
         animator.SetTrigger("Attack");
 
-        targetUnit.Hit( gameObject );
+        targetUnit.Hit(gameObject);
     }
 
     public void OnDeathAnimFinished()
@@ -43,44 +43,46 @@ public class Warrior : UnitBase
     }
 
 
-    protected override void UpdateDefensive(List<GameObject> allies, List<GameObject> enemies)
+    protected override void UpdateDefensive(List<UnitBase> allies, List<UnitBase> enemies)
     {
         Vector3 enemyCenter = Utils.GetCenter(enemies);
 
-        if ( Mathf.Abs( enemyCenter.x - transform.position.x ) > 20 )
+        if(Mathf.Abs(enemyCenter.x - transform.position.x) > 20)
         {
-            if ( enemyCenter.x < transform.position.x )
-                Move( Vector3.left );
+            if(enemyCenter.x < transform.position.x)
+                Move(Vector3.left);
 
-            if ( enemyCenter.x > transform.position.x )
-                Move( Vector3.right );
+            if(enemyCenter.x > transform.position.x)
+                Move(Vector3.right);
         }
 
-        Utils.GetNearestObject(gameObject, enemies, out GameObject nearestObject );
+        Utils.GetNearestEnemy(gameObject, enemies, out UnitBase nearestObject);
 
-        if ( nearestObject == null )
+        if(nearestObject == null)
             return;
 
-        if ( attackCooldown <= 0 )
-            Move( (nearestObject.transform.position - transform.position).normalized );
+        if(attackCooldown <= 0)
+        {
+            Move((nearestObject.transform.position - transform.position).normalized);
+        }
         else
         {
-            Move( (nearestObject.transform.position - transform.position).normalized * -1 );
+            Move((nearestObject.transform.position - transform.position).normalized * -1);
         }
 
         Attack(nearestObject);
     }
 
-    protected override void UpdateBasic(List<GameObject> allies, List<GameObject> enemies)
+    protected override void UpdateBasic(List<UnitBase> allies, List<UnitBase> enemies)
     {
-        Utils.GetNearestObject(gameObject, enemies, out GameObject nearestEnemy );
+        Utils.GetNearestEnemy(gameObject, enemies, out UnitBase nearestEnemy);
 
-        if ( nearestEnemy == null )
+        if(nearestEnemy == null)
             return;
 
         Vector3 toNearest = (nearestEnemy.transform.position - transform.position).normalized;
-        toNearest.Scale( new Vector3(1, 0, 1));
-        Move( toNearest.normalized );
+        toNearest.Scale(new Vector3(1, 0, 1));
+        Move(toNearest.normalized);
 
         Attack(nearestEnemy);
     }

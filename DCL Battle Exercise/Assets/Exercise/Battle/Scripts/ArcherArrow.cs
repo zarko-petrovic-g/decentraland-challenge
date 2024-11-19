@@ -1,16 +1,18 @@
 using System;
-using System.Collections;
-using System.Collections.Generic;
 using UnityEngine;
 
 public class ArcherArrow : MonoBehaviour
 {
     public float speed;
 
-    [NonSerialized] public Vector3 target;
-    [NonSerialized] public float attack;
-
+    // TODO encapsulate this and convert to enemy army since it only uses it to check for enemies (or remove altogether if a target property is used)
     public Army army;
+
+    [NonSerialized]
+    public float attack;
+
+    [NonSerialized]
+    public Vector3 target;
 
     public void Update()
     {
@@ -18,20 +20,21 @@ public class ArcherArrow : MonoBehaviour
         transform.position += direction * speed;
         transform.forward = direction;
 
-        foreach ( var a in army.enemyArmy.GetUnits() )
+        // TODO just check the target enemy instead of all enemies
+        foreach(UnitBase a in army.EnemyArmy.Units)
         {
             float dist = Vector3.Distance(a.transform.position, transform.position);
 
-            if (dist < speed)
+            if(dist < speed)
             {
-                UnitBase unit = a.GetComponent<UnitBase>();
+                var unit = a.GetComponent<UnitBase>();
                 unit.Hit(gameObject);
                 Destroy(gameObject);
                 return;
             }
         }
 
-        if ( Vector3.Distance(transform.position, target) < speed)
+        if(Vector3.Distance(transform.position, target) < speed)
         {
             Destroy(gameObject);
         }

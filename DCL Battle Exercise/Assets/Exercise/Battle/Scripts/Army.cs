@@ -3,25 +3,44 @@ using UnityEngine;
 
 public class Army
 {
-    public Army enemyArmy;
-    public Color color;
-    public List<Warrior> warriors = new List<Warrior>();
-    public List<Archer> archers = new List<Archer>();
+    public Army EnemyArmy { get; set; }
 
-    public List<GameObject> GetUnits()
+    // TODO consider returning IEnumerable instead, does it create garbage in a foreach loop?
+    public List<UnitBase> Units { get; } = new List<UnitBase>();
+
+    public int UnitCount => Units.Count;
+    public Vector3 Center => Utils.GetCenter(Units);
+
+    public void InstantiateUnits(IArmyModel model, Bounds bounds, Warrior warriorPrefab, Archer archerPrefab,
+        Color color)
     {
-        List<GameObject> result = new List<GameObject>();
-
-        foreach ( var warrior in warriors )
+        for(int i = 0; i < model.warriors; i++)
         {
-            result.Add( warrior.gameObject );
+            Warrior warrior = Object.Instantiate(warriorPrefab);
+            warrior.transform.position = Utils.GetRandomPosInBounds(bounds);
+
+            warrior.army = this;
+            warrior.armyModel = model;
+            warrior.GetComponentInChildren<Renderer>().material.color = color;
+
+            Units.Add(warrior);
         }
 
-        foreach ( var archer in archers )
+        for(int i = 0; i < model.archers; i++)
         {
-            result.Add( archer.gameObject );
-        }
+            Archer archer = Object.Instantiate(archerPrefab);
+            archer.transform.position = Utils.GetRandomPosInBounds(bounds);
 
-        return result;
+            archer.army = this;
+            archer.armyModel = model;
+            archer.GetComponentInChildren<Renderer>().material.color = color;
+
+            Units.Add(archer);
+        }
+    }
+
+    public void Remove(UnitBase unit)
+    {
+        Units.Remove(unit);
     }
 }
