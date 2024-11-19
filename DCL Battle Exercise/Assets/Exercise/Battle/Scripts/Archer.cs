@@ -18,7 +18,7 @@ public class Archer : UnitBase
         postAttackDelay = 1f;
     }
 
-    public override void Attack(UnitBase enemy)
+    protected virtual void Attack(UnitBase enemy)
     {
         if(attackCooldown > 0)
             return;

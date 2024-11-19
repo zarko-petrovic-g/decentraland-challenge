@@ -18,7 +18,7 @@ public class Warrior : UnitBase
         postAttackDelay = 0;
     }
 
-    public override void Attack(UnitBase target)
+    protected virtual void Attack(UnitBase target)
     {
         if(attackCooldown > 0)
             return;

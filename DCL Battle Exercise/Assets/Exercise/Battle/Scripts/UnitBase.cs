@@ -21,6 +21,7 @@ public abstract class UnitBase : MonoBehaviour
     public float defense { get; protected set; }
     public float attack { get; protected set; }
     public float maxAttackCooldown { get; protected set; }
+    // TODO move postAttackDelay to Archer?
     public float postAttackDelay { get; protected set; }
     public float speed { get; protected set; } = 0.1f;
 
@@ -72,14 +73,10 @@ public abstract class UnitBase : MonoBehaviour
         lastPosition = CachedTransform.position;
     }
 
-    // TODO push down?
-    public abstract void Attack(UnitBase enemy);
-
-
     protected abstract void UpdateDefensive(List<UnitBase> allies, List<UnitBase> enemies);
     protected abstract void UpdateBasic(List<UnitBase> allies, List<UnitBase> enemies);
 
-    public virtual void Move(Vector3 delta)
+    protected virtual void Move(Vector3 delta)
     {
         if(attackCooldown > maxAttackCooldown - postAttackDelay)
             return;
