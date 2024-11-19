@@ -23,23 +23,21 @@ public class Archer : UnitBase
         if(attackCooldown > 0)
             return;
 
-        if(Vector3.Distance(transform.position, enemy.transform.position) > attackRange)
+        if(Vector3.Distance(CachedTransform.position, enemy.CachedTransform.position) > attackRange)
             return;
 
         attackCooldown = maxAttackCooldown;
-        GameObject arrow = Instantiate(arrowPrefab.gameObject);
-        arrow.GetComponent<ArcherArrow>().target = enemy.transform.position;
-        arrow.GetComponent<ArcherArrow>().attack = attack;
-        arrow.GetComponent<ArcherArrow>().army = army;
-        arrow.transform.position = transform.position;
+        ArcherArrow arrow = Instantiate(arrowPrefab, CachedTransform.position, Quaternion.identity);
+        arrow.Target = enemy.CachedTransform.position;
+        arrow.Attack = attack;
+        arrow.EnemyArmy = army.EnemyArmy;
 
-        var animator = GetComponentInChildren<Animator>();
-        animator?.SetTrigger("Attack");
+        if(hasAnimator)
+        {
+            animator.SetTrigger(AttackTriggerId);
+        }
 
-        if(army == BattleInstantiator.instance.Army1)
-            arrow.GetComponent<Renderer>().material.color = BattleInstantiator.instance.Army1Color;
-        else
-            arrow.GetComponent<Renderer>().material.color = BattleInstantiator.instance.Army2Color;
+        arrow.Color = Color;
     }
 
     protected override void UpdateDefensive(List<UnitBase> allies, List<UnitBase> enemies)

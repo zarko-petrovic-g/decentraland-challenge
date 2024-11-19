@@ -5,6 +5,7 @@ using UnityEngine;
 
 public abstract class UnitBase : MonoBehaviour
 {
+    protected readonly static int AttackTriggerId = Animator.StringToHash("Attack");
     public Army army;
 
     [NonSerialized]
@@ -19,13 +20,26 @@ public abstract class UnitBase : MonoBehaviour
     public float postAttackDelay { get; protected set; }
     public float speed { get; protected set; } = 0.1f;
 
-    // TODO get; private set; ? performance implications?
-    [NonSerialized]
-    public Transform CachedTransform;
+    // TODO check performance implications compared to a field
+    public Transform CachedTransform { get; private set; }
+
+    protected Animator animator;
+    protected bool hasAnimator;
+
+    protected new Renderer renderer;
+    
+    public Color Color
+    {
+        set => renderer.material.color = value;
+        get => renderer.material.color;
+    }
     
     protected virtual void Awake()
     {
         CachedTransform = transform;
+        animator = GetComponentInChildren<Animator>();
+        hasAnimator = animator != null;
+        renderer = GetComponentInChildren<Renderer>();
     }
 
     private void Update()
@@ -82,7 +96,7 @@ public abstract class UnitBase : MonoBehaviour
         else
         {
             var arrow = sourceGo.GetComponent<ArcherArrow>();
-            sourceAttack = arrow.attack;
+            sourceAttack = arrow.Attack;
         }
 
         health -= Mathf.Max(sourceAttack - defense, 0);

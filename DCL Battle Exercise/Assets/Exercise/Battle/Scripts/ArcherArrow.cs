@@ -5,36 +5,60 @@ public class ArcherArrow : MonoBehaviour
 {
     public float speed;
 
-    // TODO encapsulate this and convert to enemy army since it only uses it to check for enemies (or remove altogether if a target property is used)
-    public Army army;
+    // TODO encapsulate this
+    public Army EnemyArmy;
+
+    // TODO put these in a SO
+    [NonSerialized]
+    public float Attack;
 
     [NonSerialized]
-    public float attack;
+    public Vector3 Target;
 
-    [NonSerialized]
-    public Vector3 target;
+    public Transform CachedTransform { get; private set; }
+    private Vector3 direction;
+    private Vector3 movement;
+    
+    private new Renderer renderer;
+    
+    public Color Color
+    {
+        set => renderer.material.color = value;
+        get => renderer.material.color;
+    }
+    
+    private void Awake()
+    {
+        CachedTransform = transform;
+        renderer = GetComponent<Renderer>();
+    }
+
+    private void Start()
+    {
+        direction = (Target - CachedTransform.position).normalized;
+        movement = direction * speed;
+        CachedTransform.forward = direction;
+    }
 
     public void Update()
     {
-        Vector3 direction = (target - transform.position).normalized;
-        transform.position += direction * speed;
-        transform.forward = direction;
+        transform.position += movement;
 
-        // TODO just check the target enemy instead of all enemies
-        foreach(UnitBase a in army.EnemyArmy.Units)
+        Vector3 position = CachedTransform.position;
+
+        foreach(UnitBase unit in EnemyArmy.Units)
         {
-            float dist = Vector3.Distance(a.transform.position, transform.position);
+            float dist = Vector3.Distance(unit.CachedTransform.position, position);
 
             if(dist < speed)
             {
-                var unit = a.GetComponent<UnitBase>();
                 unit.Hit(gameObject);
                 Destroy(gameObject);
                 return;
             }
         }
 
-        if(Vector3.Distance(transform.position, target) < speed)
+        if(Vector3.Distance(position, Target) < speed)
         {
             Destroy(gameObject);
         }
