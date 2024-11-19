@@ -44,34 +44,37 @@ public class Archer : UnitBase
 
     protected override void UpdateDefensive(List<UnitBase> allies, List<UnitBase> enemies)
     {
+        // TODO get rid of this GetCenter call, we can use army.Center and improve performance
         Vector3 enemyCenter = Utils.GetCenter(enemies);
-        float distToEnemyX = Mathf.Abs(enemyCenter.x - transform.position.x);
+        Vector3 position = CachedTransform.position;
+        float distToEnemyX = Mathf.Abs(enemyCenter.x - position.x);
 
         if(distToEnemyX > attackRange)
         {
-            if(enemyCenter.x < transform.position.x)
+            if(enemyCenter.x < position.x)
                 Move(Vector3.left);
 
-            if(enemyCenter.x > transform.position.x)
+            if(enemyCenter.x > position.x)
                 Move(Vector3.right);
         }
 
-        float distToNearest = Utils.GetNearestEnemy(gameObject, enemies, out UnitBase nearestEnemy);
+        bool enemyFound = Utils.GetNearestEnemy(position, enemies, out float distToNearest, out UnitBase nearestEnemy);
 
-        if(nearestEnemy == null)
-            return;
+        if(!enemyFound) return;
+
+        Vector3 enemyPosition = nearestEnemy.CachedTransform.position;
 
         if(distToNearest < attackRange)
         {
-            Vector3 toNearest = (nearestEnemy.transform.position - transform.position).normalized;
-            toNearest.Scale(new Vector3(1, 0, 1));
+            Vector3 toNearest = (enemyPosition - position).normalized;
+            toNearest.y = 0;
 
             Vector3 flank = Quaternion.Euler(0, 90, 0) * toNearest;
             Move(-(toNearest + flank).normalized);
         }
         else
         {
-            Vector3 toNearest = (nearestEnemy.transform.position - transform.position).normalized;
+            Vector3 toNearest = (enemyPosition - position).normalized;
             toNearest.Scale(new Vector3(1, 0, 1));
             Move(toNearest.normalized);
         }
@@ -81,13 +84,15 @@ public class Archer : UnitBase
 
     protected override void UpdateBasic(List<UnitBase> allies, List<UnitBase> enemies)
     {
-        Utils.GetNearestEnemy(gameObject, enemies, out UnitBase nearestEnemy);
+        Vector3 position = CachedTransform.position;
+        
+        bool enemyFound = Utils.GetNearestEnemy(position, enemies, out _, out UnitBase nearestEnemy);
 
-        if(nearestEnemy == null)
-            return;
+        if(!enemyFound) return;
 
-        Vector3 toNearest = (nearestEnemy.transform.position - transform.position).normalized;
-        toNearest.Scale(new Vector3(1, 0, 1));
+        // TODO probably two normalization are not needed
+        Vector3 toNearest = (nearestEnemy.CachedTransform.position - position).normalized;
+        toNearest.y = 0;
         Move(toNearest.normalized);
 
         Attack(nearestEnemy);

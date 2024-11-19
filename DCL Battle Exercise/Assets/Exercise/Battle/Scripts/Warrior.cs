@@ -43,41 +43,45 @@ public class Warrior : UnitBase
     {
         Vector3 enemyCenter = Utils.GetCenter(enemies);
 
-        if(Mathf.Abs(enemyCenter.x - transform.position.x) > 20)
+        Vector3 position = transform.position;
+
+        if(Mathf.Abs(enemyCenter.x - position.x) > 20)
         {
-            if(enemyCenter.x < transform.position.x)
+            if(enemyCenter.x < position.x)
                 Move(Vector3.left);
 
-            if(enemyCenter.x > transform.position.x)
+            if(enemyCenter.x > position.x)
                 Move(Vector3.right);
         }
 
-        Utils.GetNearestEnemy(gameObject, enemies, out UnitBase nearestObject);
+        bool enemyFound = Utils.GetNearestEnemy(position, enemies, out _, out UnitBase enemy);
 
-        if(nearestObject == null)
-            return;
+        if(!enemyFound) return;
+
+        Vector3 enemyPosition = enemy.transform.position;
 
         if(attackCooldown <= 0)
         {
-            Move((nearestObject.transform.position - transform.position).normalized);
+            Move((enemyPosition - position).normalized);
         }
         else
         {
-            Move((nearestObject.transform.position - transform.position).normalized * -1);
+            Move((position - enemyPosition).normalized);
         }
 
-        Attack(nearestObject);
+        Attack(enemy);
     }
 
     protected override void UpdateBasic(List<UnitBase> allies, List<UnitBase> enemies)
     {
-        Utils.GetNearestEnemy(gameObject, enemies, out UnitBase nearestEnemy);
+        Vector3 position = transform.position;
+        bool enemyFound = Utils.GetNearestEnemy(position, enemies, out _, out UnitBase nearestEnemy);
 
-        if(nearestEnemy == null)
-            return;
+        if(!enemyFound) return;
 
-        Vector3 toNearest = (nearestEnemy.transform.position - transform.position).normalized;
-        toNearest.Scale(new Vector3(1, 0, 1));
+        // TODO probably two normalizations are not needed
+        Vector3 toNearest = (nearestEnemy.CachedTransform.position - position).normalized;
+        toNearest.y = 0f;
         Move(toNearest.normalized);
 
         Attack(nearestEnemy);

@@ -29,24 +29,26 @@ public static class Utils
         return result;
     }
 
-    public static float GetNearestEnemy(GameObject source, List<UnitBase> enemies, out UnitBase nearestEnemy)
+    public static bool GetNearestEnemy(Vector3 source, List<UnitBase> enemies, out float minDistance, out UnitBase nearestEnemy)
     {
         // TODO convert to return bool if successful so the caller doesn't need to check a UnityObject for null
 
-        float minDist = float.MaxValue;
+        minDistance = float.MaxValue;
         nearestEnemy = null;
+        bool enemyFound = false;
 
         foreach(UnitBase enemy in enemies)
         {
-            float dist = Vector3.Distance(source.transform.position, enemy.transform.position);
+            float distance = Vector3.Distance(source, enemy.CachedTransform.position);
 
-            if(dist < minDist)
+            if(distance < minDistance)
             {
-                minDist = dist;
+                minDistance = distance;
                 nearestEnemy = enemy;
+                enemyFound = true;
             }
         }
 
-        return minDist;
+        return enemyFound;
     }
 }
