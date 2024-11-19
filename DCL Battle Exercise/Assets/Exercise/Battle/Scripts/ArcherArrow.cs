@@ -52,7 +52,7 @@ public class ArcherArrow : MonoBehaviour
 
             if(dist < speed)
             {
-                unit.Hit(gameObject);
+                unit.Hit(Attack, position);
                 Destroy(gameObject);
                 return;
             }

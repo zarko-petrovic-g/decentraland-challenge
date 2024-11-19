@@ -23,7 +23,9 @@ public class Warrior : UnitBase
         if(attackCooldown > 0)
             return;
 
-        if(Vector3.Distance(CachedTransform.position, target.CachedTransform.position) > attackRange)
+        Vector3 position = CachedTransform.position;
+       
+        if(Vector3.Distance(position, target.CachedTransform.position) > attackRange)
             return;
 
         attackCooldown = maxAttackCooldown;
@@ -33,7 +35,7 @@ public class Warrior : UnitBase
             animator.SetTrigger(AttackTriggerId);
         }
 
-        target.Hit(gameObject);
+        target.Hit(attack, position);
     }
 
     protected override void UpdateDefensive(List<UnitBase> allies, List<UnitBase> enemies)

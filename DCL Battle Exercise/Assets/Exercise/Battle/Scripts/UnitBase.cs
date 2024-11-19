@@ -6,6 +6,10 @@ using UnityEngine;
 public abstract class UnitBase : MonoBehaviour
 {
     protected readonly static int AttackTriggerId = Animator.StringToHash("Attack");
+    private readonly static int MovementSpeedParamId = Animator.StringToHash("MovementSpeed");
+    private readonly static int DeathTriggerId = Animator.StringToHash("Death");
+    private readonly static int HitTriggerId = Animator.StringToHash("Hit");
+
     public Army army;
 
     [NonSerialized]
@@ -64,11 +68,11 @@ public abstract class UnitBase : MonoBehaviour
                 break;
         }
 
-        var animator = GetComponentInChildren<Animator>();
-        animator.SetFloat("MovementSpeed", (transform.position - lastPosition).magnitude / speed);
-        lastPosition = transform.position;
+        animator.SetFloat(MovementSpeedParamId, (CachedTransform.position - lastPosition).magnitude / speed);
+        lastPosition = CachedTransform.position;
     }
 
+    // TODO push down?
     public abstract void Attack(UnitBase enemy);
 
 
@@ -83,38 +87,22 @@ public abstract class UnitBase : MonoBehaviour
         transform.position += delta * speed;
     }
 
-    public virtual void Hit(GameObject sourceGo)
+    public virtual void Hit(float damage, Vector3 attackerPosition)
     {
-        // TODO avoid all these getcomponents and cache the animator hash
-        var source = sourceGo.GetComponent<UnitBase>();
-        float sourceAttack = 0;
-
-        if(source != null)
-        {
-            sourceAttack = source.attack;
-        }
-        else
-        {
-            var arrow = sourceGo.GetComponent<ArcherArrow>();
-            sourceAttack = arrow.Attack;
-        }
-
-        health -= Mathf.Max(sourceAttack - defense, 0);
+        health -= Mathf.Max(damage - defense, 0);
 
         if(health < 0)
         {
-            transform.forward = sourceGo.transform.position - transform.position;
+            CachedTransform.forward = attackerPosition - CachedTransform.position;
 
             army.Remove(this);
             BattleInstantiator.instance.AllUnits.Remove(this);
 
-            var animator = GetComponentInChildren<Animator>();
-            animator?.SetTrigger("Death");
+            animator.SetTrigger(DeathTriggerId);
         }
         else
         {
-            var animator = GetComponentInChildren<Animator>();
-            animator?.SetTrigger("Hit");
+            animator.SetTrigger(HitTriggerId);
         }
     }
 
