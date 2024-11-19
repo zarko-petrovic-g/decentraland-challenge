@@ -7,8 +7,10 @@ public class Warrior : UnitBase
     [NonSerialized]
     public float attackRange = 2.5f;
 
-    private void Awake()
+    protected override void Awake()
     {
+        base.Awake();
+        
         health = 50;
         defense = 5;
         attack = 20;
@@ -36,12 +38,6 @@ public class Warrior : UnitBase
 
         targetUnit.Hit(gameObject);
     }
-
-    public void OnDeathAnimFinished()
-    {
-        Destroy(gameObject);
-    }
-
 
     protected override void UpdateDefensive(List<UnitBase> allies, List<UnitBase> enemies)
     {

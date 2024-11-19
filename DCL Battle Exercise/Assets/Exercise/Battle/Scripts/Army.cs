@@ -9,7 +9,7 @@ public class Army
     public List<UnitBase> Units { get; } = new List<UnitBase>();
 
     public int UnitCount => Units.Count;
-    public Vector3 Center => Utils.GetCenter(Units);
+    public Vector3 Center { get; private set; }
 
     public void InstantiateUnits(IArmyModel model, Bounds bounds, Warrior warriorPrefab, Archer archerPrefab,
         Color color)
@@ -37,6 +37,13 @@ public class Army
 
             Units.Add(archer);
         }
+
+        Center = Utils.GetCenter(Units);
+    }
+
+    public void Update()
+    {
+        Center = Utils.GetCenter(Units);
     }
 
     public void Remove(UnitBase unit)

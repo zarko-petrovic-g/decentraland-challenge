@@ -7,8 +7,10 @@ public class Archer : UnitBase
 
     public ArcherArrow arrowPrefab;
 
-    private void Awake()
+    protected override void Awake()
     {
+        base.Awake();
+        
         health = 5;
         defense = 0;
         attack = 10;
@@ -38,11 +40,6 @@ public class Archer : UnitBase
             arrow.GetComponent<Renderer>().material.color = BattleInstantiator.instance.Army1Color;
         else
             arrow.GetComponent<Renderer>().material.color = BattleInstantiator.instance.Army2Color;
-    }
-
-    public void OnDeathAnimFinished()
-    {
-        Destroy(gameObject);
     }
 
     protected override void UpdateDefensive(List<UnitBase> allies, List<UnitBase> enemies)

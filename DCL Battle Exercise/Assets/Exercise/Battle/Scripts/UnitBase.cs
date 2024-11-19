@@ -19,6 +19,15 @@ public abstract class UnitBase : MonoBehaviour
     public float postAttackDelay { get; protected set; }
     public float speed { get; protected set; } = 0.1f;
 
+    // TODO get; private set; ? performance implications?
+    [NonSerialized]
+    public Transform CachedTransform;
+    
+    protected virtual void Awake()
+    {
+        CachedTransform = transform;
+    }
+
     private void Update()
     {
         if(health < 0)
@@ -62,7 +71,7 @@ public abstract class UnitBase : MonoBehaviour
 
     public virtual void Hit(GameObject sourceGo)
     {
-        // TODO avoid all these getcomponents
+        // TODO avoid all these getcomponents and cache the animator hash
         var source = sourceGo.GetComponent<UnitBase>();
         float sourceAttack = 0;
 
@@ -83,6 +92,7 @@ public abstract class UnitBase : MonoBehaviour
             transform.forward = sourceGo.transform.position - transform.position;
 
             army.Remove(this);
+            BattleInstantiator.instance.AllUnits.Remove(this);
 
             var animator = GetComponentInChildren<Animator>();
             animator?.SetTrigger("Death");
@@ -96,30 +106,39 @@ public abstract class UnitBase : MonoBehaviour
 
     private void EvadeOtherUnits()
     {
-        List<UnitBase> allUnits = army.Units.Union(army.EnemyArmy.Units).ToList();
-
-        // TODO calculate center only once per frame, probably in BattleInstantiator
         // TODO move clamp position out of this method, this should just evade units
-        Vector3 center = Utils.GetCenter(allUnits);
+        var battleInstantiator = BattleInstantiator.instance;
+        Vector3 center = battleInstantiator.Center;
 
-        float centerDist = Vector3.Distance(gameObject.transform.position, center);
+        Vector3 position = CachedTransform.position;
+        float centerDist = Vector3.Distance(position, center);
 
         if(centerDist > 80.0f)
         {
-            Vector3 toNearest = (center - transform.position).normalized;
-            transform.position -= toNearest * (80.0f - centerDist);
+            Vector3 toNearest = (center - position).normalized;
+            CachedTransform.position -= toNearest * (80.0f - centerDist);
             return;
         }
 
-        foreach(UnitBase obj in allUnits)
+        List<UnitBase> allUnits = battleInstantiator.AllUnits;
+        int allUnitsCount = allUnits.Count;
+
+        for(int index = 0; index < allUnitsCount; index++)
         {
-            float dist = Vector3.Distance(gameObject.transform.position, obj.transform.position);
+            Vector3 otherUnitPosition = allUnits[index].CachedTransform.position;
+            float dist = Vector3.Distance(position, otherUnitPosition);
 
             if(dist < 2f)
             {
-                Vector3 toNearest = (obj.transform.position - transform.position).normalized;
-                transform.position -= toNearest * (2.0f - dist);
+                Vector3 toNearest = (otherUnitPosition - position).normalized;
+                position -= toNearest * (2.0f - dist);
+                CachedTransform.position = position;
             }
         }
+    }
+
+    public void OnDeathAnimFinished()
+    {
+        Destroy(gameObject);
     }
 }

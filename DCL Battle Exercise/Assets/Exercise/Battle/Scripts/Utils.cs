@@ -15,15 +15,16 @@ public static class Utils
         where T : MonoBehaviour
     {
         Vector3 result = Vector3.zero;
-
+        int count = 0;
         foreach(T o in objects)
         {
             result += o.transform.position;
+            count++;
         }
 
-        result.x /= objects.Count;
-        result.y /= objects.Count;
-        result.z /= objects.Count;
+        result.x /= count;
+        result.y /= count;
+        result.z /= count;
 
         return result;
     }

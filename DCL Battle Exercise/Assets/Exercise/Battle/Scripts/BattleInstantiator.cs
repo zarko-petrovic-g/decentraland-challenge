@@ -1,3 +1,5 @@
+using System.Collections.Generic;
+using System.Linq;
 using UnityEngine;
 
 public class BattleInstantiator : MonoBehaviour
@@ -32,9 +34,15 @@ public class BattleInstantiator : MonoBehaviour
     [SerializeField]
     private CameraController cameraController;
 
+    // TODO consider returning IEnumerable instead, performance implications?
+    public List<UnitBase> AllUnits { get; private set; }
+
+    public Vector3 Center { get; private set; }
+    
     public Army Army1 { get; private set; }
     public Army Army2 { get; private set; }
 
+    // TODO consider making non-singleton for unit testing friendliness
     public static BattleInstantiator instance { get; private set; }
 
     public Color Army1Color => army1Color;
@@ -51,11 +59,21 @@ public class BattleInstantiator : MonoBehaviour
         Army1.EnemyArmy = Army2;
         Army2.EnemyArmy = Army1;
 
+        AllUnits = new List<UnitBase>(Army1.UnitCount + Army2.UnitCount);
+        AllUnits.AddRange(Army1.Units);
+        AllUnits.AddRange(Army2.Units);
+        
+        Center = Utils.GetCenter(AllUnits);    
+        
         cameraController.SetArmies(Army1, Army2);
     }
 
     private void Update()
     {
+        Army1.Update();
+        Army2.Update();
+        Center = Utils.GetCenter(AllUnits);
+        
         // TODO event upon unit death instead of polling
         if(Army1.UnitCount == 0 || Army2.UnitCount == 0)
         {
