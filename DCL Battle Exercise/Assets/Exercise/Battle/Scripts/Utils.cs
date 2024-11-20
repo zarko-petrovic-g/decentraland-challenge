@@ -11,11 +11,12 @@ public static class Utils
         return pos;
     }
 
-    public static Vector3 GetCenter<T>(List<T> objects)
+    public static Vector3 GetCenter<T>(IEnumerable<T> objects)
         where T : MonoBehaviour
     {
         Vector3 result = Vector3.zero;
         int count = 0;
+
         foreach(T o in objects)
         {
             result += o.transform.position;
@@ -29,7 +30,8 @@ public static class Utils
         return result;
     }
 
-    public static bool GetNearestEnemy(Vector3 source, List<UnitBase> enemies, out float minDistance, out UnitBase nearestEnemy)
+    public static bool GetNearestEnemy(Vector3 source, IEnumerable<UnitBase> enemies, out float minDistance,
+        out UnitBase nearestEnemy)
     {
         // TODO convert to return bool if successful so the caller doesn't need to check a UnityObject for null
 

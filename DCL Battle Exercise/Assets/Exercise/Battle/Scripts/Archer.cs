@@ -1,5 +1,4 @@
-﻿using System.Collections.Generic;
-using UnityEngine;
+﻿using UnityEngine;
 
 public class Archer : UnitBase
 {
@@ -10,7 +9,7 @@ public class Archer : UnitBase
     protected override void Awake()
     {
         base.Awake();
-        
+
         health = 5;
         defense = 0;
         attack = 10;
@@ -30,7 +29,7 @@ public class Archer : UnitBase
         ArcherArrow arrow = Instantiate(arrowPrefab, CachedTransform.position, Quaternion.identity);
         arrow.Target = enemy.CachedTransform.position;
         arrow.Attack = attack;
-        arrow.EnemyArmy = army.EnemyArmy;
+        arrow.EnemyArmy = EnemyArmy;
 
         if(hasAnimator)
         {
@@ -40,10 +39,9 @@ public class Archer : UnitBase
         arrow.Color = Color;
     }
 
-    protected override void UpdateDefensive(List<UnitBase> allies, List<UnitBase> enemies)
+    protected override void UpdateDefensive(Army army, Army enemyArmy)
     {
-        // TODO get rid of this GetCenter call, we can use army.Center and improve performance
-        Vector3 enemyCenter = Utils.GetCenter(enemies);
+        Vector3 enemyCenter = EnemyArmy.Center;
         Vector3 position = CachedTransform.position;
         float distToEnemyX = Mathf.Abs(enemyCenter.x - position.x);
 
@@ -56,7 +54,8 @@ public class Archer : UnitBase
                 Move(Vector3.right);
         }
 
-        bool enemyFound = Utils.GetNearestEnemy(position, enemies, out float distToNearest, out UnitBase nearestEnemy);
+        bool enemyFound =
+            Utils.GetNearestEnemy(position, enemyArmy.Units, out float distToNearest, out UnitBase nearestEnemy);
 
         if(!enemyFound) return;
 
@@ -80,11 +79,11 @@ public class Archer : UnitBase
         Attack(nearestEnemy);
     }
 
-    protected override void UpdateBasic(List<UnitBase> allies, List<UnitBase> enemies)
+    protected override void UpdateBasic(Army army, Army enemyArmy)
     {
         Vector3 position = CachedTransform.position;
-        
-        bool enemyFound = Utils.GetNearestEnemy(position, enemies, out _, out UnitBase nearestEnemy);
+
+        bool enemyFound = Utils.GetNearestEnemy(position, enemyArmy.Units, out _, out UnitBase nearestEnemy);
 
         if(!enemyFound) return;
 

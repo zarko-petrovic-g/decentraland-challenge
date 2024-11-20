@@ -3,42 +3,38 @@ using UnityEngine;
 
 public class Army
 {
-    // TODO maybe an army should not know about its enemy, but the battle manager should know about both armies
-    public Army EnemyArmy { get; set; }
+    private readonly List<UnitBase> units = new List<UnitBase>();
+    public IEnumerable<UnitBase> Units => units;
 
-    // TODO consider returning IEnumerable instead, does it create garbage in a foreach loop?
-    public List<UnitBase> Units { get; } = new List<UnitBase>();
-
-    public int UnitCount => Units.Count;
+    public int UnitCount => units.Count;
     public Vector3 Center { get; private set; }
 
     public void InstantiateUnits(IArmyModel model, Bounds bounds, Warrior warriorPrefab, Archer archerPrefab,
-        Color color)
+        Color color, Army enemyArmy)
     {
         for(int i = 0; i < model.warriors; i++)
         {
-            Warrior warrior = Object.Instantiate(warriorPrefab, Utils.GetRandomPosInBounds(bounds), Quaternion.identity);
-
-            warrior.army = this;
-            warrior.armyModel = model;
-            warrior.Color = color;
-
-            Units.Add(warrior);
+            InstantiateUnit(archerPrefab, bounds, model, color, enemyArmy);
         }
 
         for(int i = 0; i < model.archers; i++)
         {
-            Archer archer = Object.Instantiate(archerPrefab);
-            archer.transform.position = Utils.GetRandomPosInBounds(bounds);
-
-            archer.army = this;
-            archer.armyModel = model;
-            archer.Color = color;
-
-            Units.Add(archer);
+            InstantiateUnit(warriorPrefab, bounds, model, color, enemyArmy);
         }
 
         Center = Utils.GetCenter(Units);
+    }
+
+    private void InstantiateUnit(UnitBase original, Bounds bounds, IArmyModel model, Color color, Army enemyArmy)
+    {
+        UnitBase unit = Object.Instantiate(original, Utils.GetRandomPosInBounds(bounds), Quaternion.identity);
+
+        unit.Army = this;
+        unit.EnemyArmy = enemyArmy;
+        unit.armyModel = model;
+        unit.Color = color;
+
+        units.Add(unit);
     }
 
     public void Update()
@@ -48,6 +44,6 @@ public class Army
 
     public void Remove(UnitBase unit)
     {
-        Units.Remove(unit);
+        units.Remove(unit);
     }
 }

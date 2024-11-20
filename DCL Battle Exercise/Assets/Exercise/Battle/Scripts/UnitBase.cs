@@ -1,6 +1,4 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
 using UnityEngine;
 
 public abstract class UnitBase : MonoBehaviour
@@ -10,17 +8,25 @@ public abstract class UnitBase : MonoBehaviour
     private readonly static int DeathTriggerId = Animator.StringToHash("Death");
     private readonly static int HitTriggerId = Animator.StringToHash("Hit");
 
-    public Army army;
+    protected Animator animator;
+
+    public Army Army;
 
     [NonSerialized]
     public IArmyModel armyModel;
 
     protected float attackCooldown;
+    public Army EnemyArmy;
+    protected bool hasAnimator;
     private Vector3 lastPosition;
+
+    protected new Renderer renderer;
     public float health { get; protected set; }
     public float defense { get; protected set; }
     public float attack { get; protected set; }
+
     public float maxAttackCooldown { get; protected set; }
+
     // TODO move postAttackDelay to Archer?
     public float postAttackDelay { get; protected set; }
     public float speed { get; protected set; } = 0.1f;
@@ -28,17 +34,12 @@ public abstract class UnitBase : MonoBehaviour
     // TODO check performance implications compared to a field
     public Transform CachedTransform { get; private set; }
 
-    protected Animator animator;
-    protected bool hasAnimator;
-
-    protected new Renderer renderer;
-    
     public Color Color
     {
         set => renderer.material.color = value;
         get => renderer.material.color;
     }
-    
+
     protected virtual void Awake()
     {
         CachedTransform = transform;
@@ -52,9 +53,6 @@ public abstract class UnitBase : MonoBehaviour
         if(health < 0)
             return;
 
-        List<UnitBase> allies = army.Units;
-        List<UnitBase> enemies = army.EnemyArmy.Units;
-
         attackCooldown -= Time.deltaTime;
         EvadeOtherUnits();
 
@@ -62,10 +60,10 @@ public abstract class UnitBase : MonoBehaviour
         switch(armyModel.strategy)
         {
             case ArmyStrategy.Defensive:
-                UpdateDefensive(allies, enemies);
+                UpdateDefensive(Army, EnemyArmy);
                 break;
             case ArmyStrategy.Basic:
-                UpdateBasic(allies, enemies);
+                UpdateBasic(Army, EnemyArmy);
                 break;
         }
 
@@ -73,8 +71,10 @@ public abstract class UnitBase : MonoBehaviour
         lastPosition = CachedTransform.position;
     }
 
-    protected abstract void UpdateDefensive(List<UnitBase> allies, List<UnitBase> enemies);
-    protected abstract void UpdateBasic(List<UnitBase> allies, List<UnitBase> enemies);
+    public event Action<UnitBase> OnDeath;
+
+    protected abstract void UpdateDefensive(Army army, Army enemyArmy);
+    protected abstract void UpdateBasic(Army army, Army enemyArmy);
 
     protected virtual void Move(Vector3 delta)
     {
@@ -91,10 +91,8 @@ public abstract class UnitBase : MonoBehaviour
         if(health < 0)
         {
             CachedTransform.forward = attackerPosition - CachedTransform.position;
-
-            army.Remove(this);
-            BattleInstantiator.instance.AllUnits.Remove(this);
-
+            Army.Remove(this);
+            OnDeath?.Invoke(this);
             animator.SetTrigger(DeathTriggerId);
         }
         else
@@ -112,6 +110,7 @@ public abstract class UnitBase : MonoBehaviour
         Vector3 position = CachedTransform.position;
         float centerDist = Vector3.Distance(position, center);
 
+        // TODO magic number
         if(centerDist > 80.0f)
         {
             Vector3 toNearest = (center - position).normalized;
@@ -119,14 +118,12 @@ public abstract class UnitBase : MonoBehaviour
             return;
         }
 
-        List<UnitBase> allUnits = battleInstantiator.AllUnits;
-        int allUnitsCount = allUnits.Count;
-
-        for(int index = 0; index < allUnitsCount; index++)
+        foreach(UnitBase unit in battleInstantiator.AllUnits)
         {
-            Vector3 otherUnitPosition = allUnits[index].CachedTransform.position;
+            Vector3 otherUnitPosition = unit.CachedTransform.position;
             float dist = Vector3.Distance(position, otherUnitPosition);
 
+            // TODO magic number
             if(dist < 2f)
             {
                 Vector3 toNearest = (otherUnitPosition - position).normalized;

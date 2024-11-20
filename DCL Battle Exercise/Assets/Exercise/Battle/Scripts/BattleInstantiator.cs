@@ -1,5 +1,4 @@
 using System.Collections.Generic;
-using System.Linq;
 using UnityEngine;
 
 public class BattleInstantiator : MonoBehaviour
@@ -34,11 +33,13 @@ public class BattleInstantiator : MonoBehaviour
     [SerializeField]
     private CameraController cameraController;
 
+    private readonly List<UnitBase> allUnits = new List<UnitBase>();
+
     // TODO consider returning IEnumerable instead, performance implications?
-    public List<UnitBase> AllUnits { get; private set; }
+    public IEnumerable<UnitBase> AllUnits => allUnits;
 
     public Vector3 Center { get; private set; }
-    
+
     public Army Army1 { get; private set; }
     public Army Army2 { get; private set; }
 
@@ -53,18 +54,20 @@ public class BattleInstantiator : MonoBehaviour
         instance = this;
 
         Army1 = new Army();
-        Army1.InstantiateUnits(army1Model, leftArmySpawnBounds.bounds, warriorPrefab, archerPrefab, army1Color);
         Army2 = new Army();
-        Army2.InstantiateUnits(army2Model, rightArmySpawnBounds.bounds, warriorPrefab, archerPrefab, army2Color);
-        Army1.EnemyArmy = Army2;
-        Army2.EnemyArmy = Army1;
+        Army1.InstantiateUnits(army1Model, leftArmySpawnBounds.bounds, warriorPrefab, archerPrefab, army1Color, Army2);
+        Army2.InstantiateUnits(army2Model, rightArmySpawnBounds.bounds, warriorPrefab, archerPrefab, army2Color, Army1);
 
-        AllUnits = new List<UnitBase>(Army1.UnitCount + Army2.UnitCount);
-        AllUnits.AddRange(Army1.Units);
-        AllUnits.AddRange(Army2.Units);
-        
-        Center = Utils.GetCenter(AllUnits);    
-        
+        allUnits.AddRange(Army1.Units);
+        allUnits.AddRange(Army2.Units);
+
+        foreach(UnitBase unit in allUnits)
+        {
+            unit.OnDeath += Remove;
+        }
+
+        Center = Utils.GetCenter(AllUnits);
+
         cameraController.SetArmies(Army1, Army2);
     }
 
@@ -73,12 +76,17 @@ public class BattleInstantiator : MonoBehaviour
         Army1.Update();
         Army2.Update();
         Center = Utils.GetCenter(AllUnits);
-        
+
         // TODO event upon unit death instead of polling
         if(Army1.UnitCount == 0 || Army2.UnitCount == 0)
         {
             gameOverMenu.gameObject.SetActive(true);
             gameOverMenu.Populate();
         }
+    }
+
+    private void Remove(UnitBase unit)
+    {
+        allUnits.Remove(unit);
     }
 }

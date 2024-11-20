@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Collections.Generic;
 using UnityEngine;
 
 public class Warrior : UnitBase
@@ -10,7 +9,7 @@ public class Warrior : UnitBase
     protected override void Awake()
     {
         base.Awake();
-        
+
         health = 50;
         defense = 5;
         attack = 20;
@@ -24,7 +23,7 @@ public class Warrior : UnitBase
             return;
 
         Vector3 position = CachedTransform.position;
-       
+
         if(Vector3.Distance(position, target.CachedTransform.position) > attackRange)
             return;
 
@@ -38,12 +37,13 @@ public class Warrior : UnitBase
         target.Hit(attack, position);
     }
 
-    protected override void UpdateDefensive(List<UnitBase> allies, List<UnitBase> enemies)
+    protected override void UpdateDefensive(Army army, Army enemyArmy)
     {
-        Vector3 enemyCenter = Utils.GetCenter(enemies);
+        Vector3 enemyCenter = EnemyArmy.Center;
 
         Vector3 position = transform.position;
 
+        // TODO magic number
         if(Mathf.Abs(enemyCenter.x - position.x) > 20)
         {
             if(enemyCenter.x < position.x)
@@ -53,7 +53,7 @@ public class Warrior : UnitBase
                 Move(Vector3.right);
         }
 
-        bool enemyFound = Utils.GetNearestEnemy(position, enemies, out _, out UnitBase enemy);
+        bool enemyFound = Utils.GetNearestEnemy(position, enemyArmy.Units, out _, out UnitBase enemy);
 
         if(!enemyFound) return;
 
@@ -71,10 +71,10 @@ public class Warrior : UnitBase
         Attack(enemy);
     }
 
-    protected override void UpdateBasic(List<UnitBase> allies, List<UnitBase> enemies)
+    protected override void UpdateBasic(Army army, Army enemyArmy)
     {
         Vector3 position = transform.position;
-        bool enemyFound = Utils.GetNearestEnemy(position, enemies, out _, out UnitBase nearestEnemy);
+        bool enemyFound = Utils.GetNearestEnemy(position, enemyArmy.Units, out _, out UnitBase nearestEnemy);
 
         if(!enemyFound) return;
 
