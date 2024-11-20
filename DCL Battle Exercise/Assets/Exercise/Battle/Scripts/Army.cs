@@ -14,27 +14,27 @@ public class Army
     {
         for(int i = 0; i < model.warriors; i++)
         {
-            InstantiateUnit(archerPrefab, bounds, model, color, enemyArmy, battle);
+            InstantiateUnit(archerPrefab, bounds, model.strategy, color, enemyArmy, battle);
         }
 
         for(int i = 0; i < model.archers; i++)
         {
-            InstantiateUnit(warriorPrefab, bounds, model, color, enemyArmy, battle);
+            InstantiateUnit(warriorPrefab, bounds, model.strategy, color, enemyArmy, battle);
         }
 
         Center = Utils.GetCenter(Units);
     }
 
-    private void InstantiateUnit(UnitBase original, Bounds bounds, IArmyModel model, Color color, Army enemyArmy,
+    private void InstantiateUnit(UnitBase original, Bounds bounds, ArmyStrategy strategy, Color color, Army enemyArmy,
         Battle battle)
     {
         UnitBase unit = Object.Instantiate(original, Utils.GetRandomPosInBounds(bounds), Quaternion.identity);
 
         unit.Army = this;
         unit.EnemyArmy = enemyArmy;
-        unit.armyModel = model;
         unit.Color = color;
         unit.Battle = battle;
+        unit.ArmyStrategy = strategy;
 
         units.Add(unit);
     }

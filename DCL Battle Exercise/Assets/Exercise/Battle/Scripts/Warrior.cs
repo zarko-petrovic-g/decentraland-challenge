@@ -6,6 +6,19 @@ public class Warrior : UnitBase
     [NonSerialized]
     public float attackRange = 2.5f;
 
+    public override ArmyStrategy ArmyStrategy
+    {
+        set
+        {
+            UnitStrategy = value switch
+            {
+                ArmyStrategy.Basic => new WarriorStrategyBasic(this),
+                ArmyStrategy.Defensive => new WarriorStrategyDefensive(this),
+                _ => throw new ArgumentOutOfRangeException()
+            };
+        }
+    }
+
     protected override void Awake()
     {
         base.Awake();
@@ -17,14 +30,14 @@ public class Warrior : UnitBase
         postAttackDelay = 0;
     }
 
-    protected virtual void Attack(UnitBase target)
+    public override void Attack(UnitBase enemy)
     {
         if(attackCooldown > 0)
             return;
 
         Vector3 position = CachedTransform.position;
 
-        if(Vector3.Distance(position, target.CachedTransform.position) > attackRange)
+        if(Vector3.Distance(position, enemy.CachedTransform.position) > attackRange)
             return;
 
         attackCooldown = maxAttackCooldown;
@@ -34,55 +47,6 @@ public class Warrior : UnitBase
             animator.SetTrigger(AttackTriggerId);
         }
 
-        target.Hit(attack, position);
-    }
-
-    protected override void UpdateDefensive(Army army, Army enemyArmy)
-    {
-        Vector3 enemyCenter = EnemyArmy.Center;
-
-        Vector3 position = transform.position;
-
-        // TODO magic number
-        if(Mathf.Abs(enemyCenter.x - position.x) > 20)
-        {
-            if(enemyCenter.x < position.x)
-                Move(Vector3.left);
-
-            if(enemyCenter.x > position.x)
-                Move(Vector3.right);
-        }
-
-        bool enemyFound = Utils.GetNearestEnemy(position, enemyArmy.Units, out _, out UnitBase enemy);
-
-        if(!enemyFound) return;
-
-        Vector3 enemyPosition = enemy.transform.position;
-
-        if(attackCooldown <= 0)
-        {
-            Move((enemyPosition - position).normalized);
-        }
-        else
-        {
-            Move((position - enemyPosition).normalized);
-        }
-
-        Attack(enemy);
-    }
-
-    protected override void UpdateBasic(Army army, Army enemyArmy)
-    {
-        Vector3 position = transform.position;
-        bool enemyFound = Utils.GetNearestEnemy(position, enemyArmy.Units, out _, out UnitBase nearestEnemy);
-
-        if(!enemyFound) return;
-
-        // TODO probably two normalizations are not needed
-        Vector3 toNearest = (nearestEnemy.CachedTransform.position - position).normalized;
-        toNearest.y = 0f;
-        Move(toNearest.normalized);
-
-        Attack(nearestEnemy);
+        enemy.Hit(attack, position);
     }
 }

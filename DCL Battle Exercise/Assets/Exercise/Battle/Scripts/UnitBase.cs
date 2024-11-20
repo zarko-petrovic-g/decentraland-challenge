@@ -14,11 +14,10 @@ public abstract class UnitBase : MonoBehaviour
 
     public Army Army;
 
-    [NonSerialized]
-    public IArmyModel armyModel;
-
     protected float attackCooldown;
 
+    public float AttackCooldown => attackCooldown;
+    
     [NonSerialized]
     public Battle Battle;
 
@@ -39,6 +38,8 @@ public abstract class UnitBase : MonoBehaviour
 
     // TODO check performance implications compared to a field
     public Transform CachedTransform { get; private set; }
+    
+    protected IUnitStrategy UnitStrategy;
 
     public Color Color
     {
@@ -46,6 +47,8 @@ public abstract class UnitBase : MonoBehaviour
         get => renderer.material.color;
     }
 
+    public abstract ArmyStrategy ArmyStrategy { set; }
+    
     protected virtual void Awake()
     {
         CachedTransform = transform;
@@ -67,16 +70,7 @@ public abstract class UnitBase : MonoBehaviour
             Battle.EvadeOtherUnits(this);
         }
 
-        // TODO use strategy pattern
-        switch(armyModel.strategy)
-        {
-            case ArmyStrategy.Defensive:
-                UpdateDefensive(Army, EnemyArmy);
-                break;
-            case ArmyStrategy.Basic:
-                UpdateBasic(Army, EnemyArmy);
-                break;
-        }
+        UnitStrategy?.Update();
 
         animator.SetFloat(MovementSpeedParamId, (CachedTransform.position - lastPosition).magnitude / speed);
         lastPosition = CachedTransform.position;
@@ -84,10 +78,9 @@ public abstract class UnitBase : MonoBehaviour
 
     public event Action<UnitBase> OnDeath;
 
-    protected abstract void UpdateDefensive(Army army, Army enemyArmy);
-    protected abstract void UpdateBasic(Army army, Army enemyArmy);
-
-    protected virtual void Move(Vector3 delta)
+    public abstract void Attack(UnitBase enemy);
+    
+    public virtual void Move(Vector3 delta)
     {
         if(attackCooldown > maxAttackCooldown - postAttackDelay)
             return;
