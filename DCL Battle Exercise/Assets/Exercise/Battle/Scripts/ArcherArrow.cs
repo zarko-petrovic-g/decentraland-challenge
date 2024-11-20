@@ -3,17 +3,16 @@ using UnityEngine;
 
 public class ArcherArrow : MonoBehaviour
 {
-    public float speed;
+    [NonSerialized]
+    public float Speed;
 
-    // TODO encapsulate this
-    public Army EnemyArmy;
-
-    // TODO put these in a SO
     [NonSerialized]
     public float Attack;
 
     [NonSerialized]
     public Vector3 Target;
+
+    public Army EnemyArmy;
 
     public Transform CachedTransform { get; private set; }
     private Vector3 direction;
@@ -36,7 +35,7 @@ public class ArcherArrow : MonoBehaviour
     private void Start()
     {
         direction = (Target - CachedTransform.position).normalized;
-        movement = direction * speed;
+        movement = direction * Speed;
         CachedTransform.forward = direction;
     }
 
@@ -50,7 +49,7 @@ public class ArcherArrow : MonoBehaviour
         {
             float dist = Vector3.Distance(unit.CachedTransform.position, position);
 
-            if(dist < speed)
+            if(dist < Speed)
             {
                 unit.Hit(Attack, position);
                 Destroy(gameObject);
@@ -58,7 +57,7 @@ public class ArcherArrow : MonoBehaviour
             }
         }
 
-        if(Vector3.Distance(position, Target) < speed)
+        if(Vector3.Distance(position, Target) < Speed)
         {
             Destroy(gameObject);
         }

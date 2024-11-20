@@ -2,10 +2,10 @@
 
 public class Archer : UnitBase
 {
-    // TODO move to a SO
-    public float attackRange = 20f;
+    [SerializeField]
+    private ArcherArrow arrowPrefab;
 
-    public ArcherArrow arrowPrefab;
+    protected ArcherStats ArcherStats => (ArcherStats)stats;
 
     public override ArmyStrategy ArmyStrategy
     {
@@ -19,31 +19,21 @@ public class Archer : UnitBase
             };
         }
     }
-
-    protected override void Awake()
-    {
-        base.Awake();
-
-        health = 5;
-        defense = 0;
-        attack = 10;
-        maxAttackCooldown = 5f;
-        postAttackDelay = 1f;
-    }
-
+    
     public override void Attack(UnitBase enemy)
     {
         if(attackCooldown > 0)
             return;
 
-        if(Vector3.Distance(CachedTransform.position, enemy.CachedTransform.position) > attackRange)
+        if(Vector3.Distance(CachedTransform.position, enemy.CachedTransform.position) > AttackRange)
             return;
 
-        attackCooldown = maxAttackCooldown;
+        attackCooldown = MaxAttackCooldown;
         ArcherArrow arrow = Instantiate(arrowPrefab, CachedTransform.position, Quaternion.identity);
         arrow.Target = enemy.CachedTransform.position;
-        arrow.Attack = attack;
+        arrow.Attack = AttackDamage;
         arrow.EnemyArmy = EnemyArmy;
+        arrow.Speed = ArcherStats.arrowSpeed;
 
         if(hasAnimator)
         {

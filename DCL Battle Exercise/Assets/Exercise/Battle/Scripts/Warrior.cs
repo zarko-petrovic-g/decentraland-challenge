@@ -3,9 +3,6 @@ using UnityEngine;
 
 public class Warrior : UnitBase
 {
-    [NonSerialized]
-    public float attackRange = 2.5f;
-
     public override ArmyStrategy ArmyStrategy
     {
         set
@@ -19,17 +16,6 @@ public class Warrior : UnitBase
         }
     }
 
-    protected override void Awake()
-    {
-        base.Awake();
-
-        health = 50;
-        defense = 5;
-        attack = 20;
-        maxAttackCooldown = 1f;
-        postAttackDelay = 0;
-    }
-
     public override void Attack(UnitBase enemy)
     {
         if(attackCooldown > 0)
@@ -37,16 +23,16 @@ public class Warrior : UnitBase
 
         Vector3 position = CachedTransform.position;
 
-        if(Vector3.Distance(position, enemy.CachedTransform.position) > attackRange)
+        if(Vector3.Distance(position, enemy.CachedTransform.position) > AttackRange)
             return;
 
-        attackCooldown = maxAttackCooldown;
+        attackCooldown = MaxAttackCooldown;
 
         if(hasAnimator)
         {
             animator.SetTrigger(AttackTriggerId);
         }
 
-        enemy.Hit(attack, position);
+        enemy.Hit(AttackDamage, position);
     }
 }

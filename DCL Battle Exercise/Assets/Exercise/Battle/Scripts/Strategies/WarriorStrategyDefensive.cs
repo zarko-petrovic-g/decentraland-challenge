@@ -8,22 +8,11 @@ public class WarriorStrategyDefensive : UnitStrategy
 
     public override void Update()
     {
-        Vector3 enemyCenter = unit.EnemyArmy.Center;
+        // TODO since this moves towards the enemy army, and then it moves towards the nearest enemy
+        // it can happen that the unit moves more than it's speed in one frame?
+        unit.MoveTowardsEnemyArmy(MaxEnemyCenterDistance);
 
         Vector3 position = unit.CachedTransform.position;
-
-        if(Mathf.Abs(enemyCenter.x - position.x) > MaxEnemyCenterDistance)
-        {
-            if(enemyCenter.x < position.x)
-            {
-                unit.Move(Vector3.left);
-            }
-
-            if(enemyCenter.x > position.x)
-            {
-                unit.Move(Vector3.right);
-            }
-        }
 
         bool enemyFound = Utils.GetNearestEnemy(position, unit.EnemyArmy.Units, out _, out UnitBase enemy);
 
@@ -33,16 +22,14 @@ public class WarriorStrategyDefensive : UnitStrategy
         }
 
         Vector3 enemyPosition = enemy.CachedTransform.position;
+        Vector3 movement = enemyPosition - position;
 
-        if(unit.AttackCooldown <= 0)
+        if(unit.AttackCooldown > 0)
         {
-            unit.Move((enemyPosition - position).normalized);
-        }
-        else
-        {
-            unit.Move((position - enemyPosition).normalized);
+            movement *= -1f;
         }
 
+        unit.Move(movement.normalized);
         unit.Attack(enemy);
     }
 }

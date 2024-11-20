@@ -1,6 +1,7 @@
-using System.Collections;
-using System.Collections.Generic;
-using UnityEngine;
+public interface IUnitStrategy
+{
+    void Update();
+}
 
 public abstract class UnitStrategy : IUnitStrategy
 {

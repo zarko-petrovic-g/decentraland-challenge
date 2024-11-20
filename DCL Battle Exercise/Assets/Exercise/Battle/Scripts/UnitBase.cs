@@ -3,8 +3,6 @@ using UnityEngine;
 
 public abstract class UnitBase : MonoBehaviour
 {
-    // TODO move to a SO
-    private const float BattleRadius = 80f;
     protected readonly static int AttackTriggerId = Animator.StringToHash("Attack");
     private readonly static int MovementSpeedParamId = Animator.StringToHash("MovementSpeed");
     private readonly static int DeathTriggerId = Animator.StringToHash("Death");
@@ -26,21 +24,16 @@ public abstract class UnitBase : MonoBehaviour
     private Vector3 lastPosition;
 
     protected new Renderer renderer;
-    public float health { get; protected set; }
-    public float defense { get; protected set; }
-    public float attack { get; protected set; }
 
-    public float maxAttackCooldown { get; protected set; }
-
-    // TODO move postAttackDelay to Archer?
-    public float postAttackDelay { get; protected set; }
-    public float speed { get; protected set; } = 0.1f;
-
-    // TODO check performance implications compared to a field
     public Transform CachedTransform { get; private set; }
     
     protected IUnitStrategy UnitStrategy;
 
+    [SerializeField]
+    protected UnitStats stats;
+    
+    public float CurrentHealth { get; private set; }
+    
     public Color Color
     {
         set => renderer.material.color = value;
@@ -49,21 +42,31 @@ public abstract class UnitBase : MonoBehaviour
 
     public abstract ArmyStrategy ArmyStrategy { set; }
     
+    public float AttackRange => stats.attackRange;
+    public float Speed => stats.speed;
+    public float Defense => stats.defense;
+    public float MaxAttackCooldown => stats.maxAttackCooldown;
+    public float PostAttackDelay => stats.postAttackDelay;
+    public float MaxHealth => stats.health;
+    public float AttackDamage => stats.attack;
+    
+
     protected virtual void Awake()
     {
         CachedTransform = transform;
         animator = GetComponentInChildren<Animator>();
         hasAnimator = animator != null;
         renderer = GetComponentInChildren<Renderer>();
+        CurrentHealth = MaxHealth;
     }
 
     private void Update()
     {
-        if(health < 0)
+        if(CurrentHealth < 0)
             return;
 
         attackCooldown -= Time.deltaTime;
-        bool positionChanged = ClampPosition();
+        bool positionChanged = Battle.ClampPosition(this);
 
         if(!positionChanged)
         {
@@ -72,7 +75,7 @@ public abstract class UnitBase : MonoBehaviour
 
         UnitStrategy?.Update();
 
-        animator.SetFloat(MovementSpeedParamId, (CachedTransform.position - lastPosition).magnitude / speed);
+        animator.SetFloat(MovementSpeedParamId, (CachedTransform.position - lastPosition).magnitude / Speed);
         lastPosition = CachedTransform.position;
     }
 
@@ -82,17 +85,17 @@ public abstract class UnitBase : MonoBehaviour
     
     public virtual void Move(Vector3 delta)
     {
-        if(attackCooldown > maxAttackCooldown - postAttackDelay)
+        if(attackCooldown > MaxAttackCooldown - PostAttackDelay)
             return;
 
-        transform.position += delta * speed;
+        transform.position += delta * Speed;
     }
 
     public virtual void Hit(float damage, Vector3 attackerPosition)
     {
-        health -= Mathf.Max(damage - defense, 0);
+        CurrentHealth -= Mathf.Max(damage - Defense, 0);
 
-        if(health < 0)
+        if(CurrentHealth < 0)
         {
             CachedTransform.forward = attackerPosition - CachedTransform.position;
             Army.Remove(this);
@@ -105,21 +108,24 @@ public abstract class UnitBase : MonoBehaviour
         }
     }
 
-    private bool ClampPosition()
+    public void MoveTowardsEnemyArmy(float desiredDistance)
     {
-        Vector3 center = Battle.Center;
+        Vector3 enemyCenter = EnemyArmy.Center;
 
         Vector3 position = CachedTransform.position;
-        float centerDist = Vector3.Distance(position, center);
 
-        if(centerDist > BattleRadius)
+        if(Mathf.Abs(enemyCenter.x - position.x) > desiredDistance)
         {
-            Vector3 toNearest = (center - position).normalized;
-            CachedTransform.position -= toNearest * (BattleRadius - centerDist);
-            return true;
-        }
+            if(enemyCenter.x < position.x)
+            {
+                Move(Vector3.left);
+            }
 
-        return false;
+            if(enemyCenter.x > position.x)
+            {
+                Move(Vector3.right);
+            }
+        }
     }
 
     public void OnDeathAnimFinished()

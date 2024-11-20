@@ -1,5 +1,3 @@
-using System.Collections;
-using System.Collections.Generic;
 using UnityEngine;
 
 public class WarriorStrategyBasic : UnitStrategy
@@ -11,7 +9,10 @@ public class WarriorStrategyBasic : UnitStrategy
         Vector3 position = unit.CachedTransform.position;
         bool enemyFound = Utils.GetNearestEnemy(position, unit.EnemyArmy.Units, out _, out UnitBase enemy);
 
-        if(!enemyFound) return;
+        if(!enemyFound)
+        {
+            return;
+        }
 
         // TODO probably two normalizations are not needed
         Vector3 toNearest = (enemy.CachedTransform.position - position).normalized;

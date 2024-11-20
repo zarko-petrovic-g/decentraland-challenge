@@ -52,8 +52,6 @@ public static class Utils
     public static bool GetNearestEnemy(Vector3 source, IEnumerable<UnitBase> enemies, out float minDistance,
         out UnitBase nearestEnemy)
     {
-        // TODO convert to return bool if successful so the caller doesn't need to check a UnityObject for null
-
         minDistance = float.MaxValue;
         nearestEnemy = null;
         bool enemyFound = false;

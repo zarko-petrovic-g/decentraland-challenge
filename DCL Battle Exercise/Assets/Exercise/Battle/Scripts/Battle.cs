@@ -1,11 +1,9 @@
+using System;
 using System.Collections.Generic;
 using UnityEngine;
 
 public class Battle : MonoBehaviour
 {
-    // TODO move to a SO
-    private const float UnitSize = 2f;
-
     [SerializeField]
     private ArmyModelSO army1Model;
 
@@ -36,9 +34,14 @@ public class Battle : MonoBehaviour
     [SerializeField]
     private CameraController cameraController;
 
+    [SerializeField]
+    private float minUnitDistance = 2f;
+    
+    [SerializeField]
+    private float battleRadius = 80f;
+    
     private readonly List<UnitBase> allUnits = new List<UnitBase>();
 
-    // TODO consider returning IEnumerable instead, performance implications?
     public IEnumerable<UnitBase> AllUnits => allUnits;
 
     public Vector3 Center { get; private set; }
@@ -87,13 +90,28 @@ public class Battle : MonoBehaviour
             Vector3 toEvadePosition = otherUnit.CachedTransform.position;
             float dist = Vector3.Distance(position, toEvadePosition);
 
-            if(dist < UnitSize)
+            if(dist < minUnitDistance)
             {
                 Vector3 toNearest = (toEvadePosition - position).normalized;
-                position -= toNearest * (UnitSize - dist);
+                position -= toNearest * (minUnitDistance - dist);
                 unit.CachedTransform.position = position;
             }
         }
+    }
+    
+    public bool ClampPosition(UnitBase unit)
+    {
+        Vector3 position = unit.CachedTransform.position;
+        float centerDist = Vector3.Distance(position, Center);
+
+        if(centerDist > battleRadius)
+        {
+            Vector3 toNearest = Center - position;
+            unit.CachedTransform.position -= toNearest.normalized * (battleRadius - centerDist);
+            return true;
+        }
+
+        return false;
     }
 
     private void UnitDied(UnitBase unit)

@@ -9,14 +9,23 @@ public interface IArmyView
 
 public class ArmyView : MonoBehaviour, IArmyView
 {
-    [SerializeField] private Slider warriorsCount;
-    [SerializeField] private TextMeshProUGUI warriorsLabel;
-    [SerializeField] private Slider archersCount;
-    [SerializeField] private TextMeshProUGUI archersLabel;
-    [SerializeField] private TMP_Dropdown strategyDropdown;
+    [SerializeField]
+    private Slider warriorsCount;
+
+    [SerializeField]
+    private TextMeshProUGUI warriorsLabel;
+
+    [SerializeField]
+    private Slider archersCount;
+
+    [SerializeField]
+    private TextMeshProUGUI archersLabel;
+
+    [SerializeField]
+    private TMP_Dropdown strategyDropdown;
 
     private EnumDropdownWrapper<ArmyStrategy> enumDropdown;
-    private IArmyPresenter presenter = null;
+    private IArmyPresenter presenter;
 
     private void Awake()
     {
@@ -26,9 +35,10 @@ public class ArmyView : MonoBehaviour, IArmyView
         enumDropdown.OnValueChanged += OnStrategyChanged;
     }
 
-    public void BindPresenter(IArmyPresenter presenter)
+    private void OnDestroy()
     {
-        this.presenter = presenter;
+        enumDropdown.OnValueChanged -= OnStrategyChanged;
+        enumDropdown?.Dispose();
     }
 
     public void UpdateWithModel(IArmyModel model)
@@ -38,6 +48,11 @@ public class ArmyView : MonoBehaviour, IArmyView
         archersCount.SetValueWithoutNotify(model.archers);
         archersLabel.text = model.archers.ToString();
         enumDropdown.SetValueWithoutNotify(model.strategy);
+    }
+
+    public void BindPresenter(IArmyPresenter presenter)
+    {
+        this.presenter = presenter;
     }
 
     private void OnWarriorsCountChanged(float value)
@@ -55,11 +70,5 @@ public class ArmyView : MonoBehaviour, IArmyView
     private void OnStrategyChanged(ArmyStrategy strategy)
     {
         presenter?.UpdateStrategy(strategy);
-    }
-
-    private void OnDestroy()
-    {
-        enumDropdown.OnValueChanged -= OnStrategyChanged;
-        enumDropdown?.Dispose();
     }
 }

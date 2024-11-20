@@ -3,7 +3,8 @@ using UnityEngine;
 public class CameraController : MonoBehaviour
 {
     // percentage of rotation to target to apply each frame
-    private const float CameraRotationRubber = 0.1f;
+    [SerializeField]
+    private float rotationRubber = 0.1f;
 
     private Army army1;
     private Army army2;
@@ -22,8 +23,8 @@ public class CameraController : MonoBehaviour
 
         Vector3 forwardTarget = (mainCenter - cachedPosition).normalized;
 
-        // TODO comment on debrief: this is frame rate dependent, and also doesn't use spherical interpolation
-        cachedTransform.forward += (forwardTarget - cachedTransform.forward) * CameraRotationRubber;
+        // TODO this is frame rate dependent, and also doesn't use spherical interpolation
+        cachedTransform.forward += (forwardTarget - cachedTransform.forward) * rotationRubber;
     }
 
     public void SetArmies(Army army1, Army army2)
