@@ -1,8 +1,11 @@
 using System.Collections.Generic;
 using UnityEngine;
 
-public class BattleInstantiator : MonoBehaviour
+public class Battle : MonoBehaviour
 {
+    // TODO move to a SO
+    private const float UnitSize = 2f;
+
     [SerializeField]
     private ArmyModelSO army1Model;
 
@@ -43,30 +46,25 @@ public class BattleInstantiator : MonoBehaviour
     public Army Army1 { get; private set; }
     public Army Army2 { get; private set; }
 
-    // TODO consider making non-singleton for unit testing friendliness
-    public static BattleInstantiator instance { get; private set; }
-
-    public Color Army1Color => army1Color;
-    public Color Army2Color => army2Color;
-
     private void Awake()
     {
-        instance = this;
-
         Army1 = new Army();
         Army2 = new Army();
-        Army1.InstantiateUnits(army1Model, leftArmySpawnBounds.bounds, warriorPrefab, archerPrefab, army1Color, Army2);
-        Army2.InstantiateUnits(army2Model, rightArmySpawnBounds.bounds, warriorPrefab, archerPrefab, army2Color, Army1);
+        Army1.InstantiateUnits(army1Model, leftArmySpawnBounds.bounds, warriorPrefab, archerPrefab, army1Color, Army2,
+            this);
+
+        Army2.InstantiateUnits(army2Model, rightArmySpawnBounds.bounds, warriorPrefab, archerPrefab, army2Color, Army1,
+            this);
 
         allUnits.AddRange(Army1.Units);
         allUnits.AddRange(Army2.Units);
 
         foreach(UnitBase unit in allUnits)
         {
-            unit.OnDeath += Remove;
+            unit.OnDeath += UnitDied;
         }
 
-        Center = Utils.GetCenter(AllUnits);
+        Center = Utils.GetCenter(allUnits);
 
         cameraController.SetArmies(Army1, Army2);
     }
@@ -75,18 +73,37 @@ public class BattleInstantiator : MonoBehaviour
     {
         Army1.Update();
         Army2.Update();
-        Center = Utils.GetCenter(AllUnits);
+        Center = Utils.GetCenter(allUnits);
+    }
 
-        // TODO event upon unit death instead of polling
-        if(Army1.UnitCount == 0 || Army2.UnitCount == 0)
+    public void EvadeOtherUnits(UnitBase unit)
+    {
+        Vector3 position = unit.CachedTransform.position;
+        int count = allUnits.Count;
+
+        for(int i = 0; i < count; i++)
+        {
+            UnitBase otherUnit = allUnits[i];
+            Vector3 toEvadePosition = otherUnit.CachedTransform.position;
+            float dist = Vector3.Distance(position, toEvadePosition);
+
+            if(dist < UnitSize)
+            {
+                Vector3 toNearest = (toEvadePosition - position).normalized;
+                position -= toNearest * (UnitSize - dist);
+                unit.CachedTransform.position = position;
+            }
+        }
+    }
+
+    private void UnitDied(UnitBase unit)
+    {
+        allUnits.Remove(unit);
+
+        if(Army1.UnitCount == 0 || Army2.UnitCount == 0 && !gameOverMenu.gameObject.activeInHierarchy)
         {
             gameOverMenu.gameObject.SetActive(true);
             gameOverMenu.Populate();
         }
-    }
-
-    private void Remove(UnitBase unit)
-    {
-        allUnits.Remove(unit);
     }
 }

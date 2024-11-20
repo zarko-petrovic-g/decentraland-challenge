@@ -10,22 +10,23 @@ public class Army
     public Vector3 Center { get; private set; }
 
     public void InstantiateUnits(IArmyModel model, Bounds bounds, Warrior warriorPrefab, Archer archerPrefab,
-        Color color, Army enemyArmy)
+        Color color, Army enemyArmy, Battle battle)
     {
         for(int i = 0; i < model.warriors; i++)
         {
-            InstantiateUnit(archerPrefab, bounds, model, color, enemyArmy);
+            InstantiateUnit(archerPrefab, bounds, model, color, enemyArmy, battle);
         }
 
         for(int i = 0; i < model.archers; i++)
         {
-            InstantiateUnit(warriorPrefab, bounds, model, color, enemyArmy);
+            InstantiateUnit(warriorPrefab, bounds, model, color, enemyArmy, battle);
         }
 
         Center = Utils.GetCenter(Units);
     }
 
-    private void InstantiateUnit(UnitBase original, Bounds bounds, IArmyModel model, Color color, Army enemyArmy)
+    private void InstantiateUnit(UnitBase original, Bounds bounds, IArmyModel model, Color color, Army enemyArmy,
+        Battle battle)
     {
         UnitBase unit = Object.Instantiate(original, Utils.GetRandomPosInBounds(bounds), Quaternion.identity);
 
@@ -33,6 +34,7 @@ public class Army
         unit.EnemyArmy = enemyArmy;
         unit.armyModel = model;
         unit.Color = color;
+        unit.Battle = battle;
 
         units.Add(unit);
     }

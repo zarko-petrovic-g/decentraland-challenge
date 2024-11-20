@@ -30,6 +30,25 @@ public static class Utils
         return result;
     }
 
+    // more performant compared to the IEnumerable version
+    public static Vector3 GetCenter<T>(List<T> objects)
+        where T : MonoBehaviour
+    {
+        Vector3 result = Vector3.zero;
+        int count = objects.Count;
+
+        for(int i = 0; i < count; i++)
+        {
+            result += objects[i].transform.position;
+        }
+
+        result.x /= count;
+        result.y /= count;
+        result.z /= count;
+
+        return result;
+    }
+
     public static bool GetNearestEnemy(Vector3 source, IEnumerable<UnitBase> enemies, out float minDistance,
         out UnitBase nearestEnemy)
     {

@@ -3,6 +3,8 @@ using UnityEngine;
 
 public abstract class UnitBase : MonoBehaviour
 {
+    // TODO move to a SO
+    private const float BattleRadius = 80f;
     protected readonly static int AttackTriggerId = Animator.StringToHash("Attack");
     private readonly static int MovementSpeedParamId = Animator.StringToHash("MovementSpeed");
     private readonly static int DeathTriggerId = Animator.StringToHash("Death");
@@ -16,6 +18,10 @@ public abstract class UnitBase : MonoBehaviour
     public IArmyModel armyModel;
 
     protected float attackCooldown;
+
+    [NonSerialized]
+    public Battle Battle;
+
     public Army EnemyArmy;
     protected bool hasAnimator;
     private Vector3 lastPosition;
@@ -54,7 +60,12 @@ public abstract class UnitBase : MonoBehaviour
             return;
 
         attackCooldown -= Time.deltaTime;
-        EvadeOtherUnits();
+        bool positionChanged = ClampPosition();
+
+        if(!positionChanged)
+        {
+            Battle.EvadeOtherUnits(this);
+        }
 
         // TODO use strategy pattern
         switch(armyModel.strategy)
@@ -101,36 +112,21 @@ public abstract class UnitBase : MonoBehaviour
         }
     }
 
-    private void EvadeOtherUnits()
+    private bool ClampPosition()
     {
-        // TODO move clamp position out of this method, this should just evade units
-        var battleInstantiator = BattleInstantiator.instance;
-        Vector3 center = battleInstantiator.Center;
+        Vector3 center = Battle.Center;
 
         Vector3 position = CachedTransform.position;
         float centerDist = Vector3.Distance(position, center);
 
-        // TODO magic number
-        if(centerDist > 80.0f)
+        if(centerDist > BattleRadius)
         {
             Vector3 toNearest = (center - position).normalized;
-            CachedTransform.position -= toNearest * (80.0f - centerDist);
-            return;
+            CachedTransform.position -= toNearest * (BattleRadius - centerDist);
+            return true;
         }
 
-        foreach(UnitBase unit in battleInstantiator.AllUnits)
-        {
-            Vector3 otherUnitPosition = unit.CachedTransform.position;
-            float dist = Vector3.Distance(position, otherUnitPosition);
-
-            // TODO magic number
-            if(dist < 2f)
-            {
-                Vector3 toNearest = (otherUnitPosition - position).normalized;
-                position -= toNearest * (2.0f - dist);
-                CachedTransform.position = position;
-            }
-        }
+        return false;
     }
 
     public void OnDeathAnimFinished()

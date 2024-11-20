@@ -1003,6 +1003,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   armyWins: {fileID: 584733685}
   goToMenu: {fileID: 87333000}
+  battle: {fileID: 1951697635}
 --- !u!1 &1951697634
 GameObject:
   m_ObjectHideFlags: 0
@@ -1014,7 +1015,7 @@ GameObject:
   - component: {fileID: 1951697636}
   - component: {fileID: 1951697635}
   m_Layer: 0
-  m_Name: Battle Instantiator
+  m_Name: Battle
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
