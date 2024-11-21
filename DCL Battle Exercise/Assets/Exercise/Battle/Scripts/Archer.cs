@@ -1,4 +1,5 @@
-﻿using UnityEngine;
+﻿using System;
+using UnityEngine;
 
 public class Archer : UnitBase
 {
@@ -15,18 +16,22 @@ public class Archer : UnitBase
             {
                 ArmyStrategy.Basic => new ArcherStrategyBasic(this),
                 ArmyStrategy.Defensive => new ArcherStrategyDefensive(this),
-                _ => throw new System.ArgumentOutOfRangeException()
+                _ => throw new ArgumentOutOfRangeException()
             };
         }
     }
-    
+
     public override void Attack(UnitBase enemy)
     {
         if(attackCooldown > 0)
+        {
             return;
+        }
 
         if(Vector3.Distance(CachedTransform.position, enemy.CachedTransform.position) > AttackRange)
+        {
             return;
+        }
 
         attackCooldown = MaxAttackCooldown;
         ArcherArrow arrow = Instantiate(arrowPrefab, CachedTransform.position, Quaternion.identity);

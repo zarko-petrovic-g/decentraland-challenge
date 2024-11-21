@@ -4,28 +4,29 @@ using UnityEngine;
 public class ArcherArrow : MonoBehaviour
 {
     [NonSerialized]
-    public float Speed;
+    public float Attack;
+
+    private Vector3 direction;
+
+    public Army EnemyArmy;
+    private Vector3 movement;
+
+    private new Renderer renderer;
 
     [NonSerialized]
-    public float Attack;
+    public float Speed;
 
     [NonSerialized]
     public Vector3 Target;
 
-    public Army EnemyArmy;
-
     public Transform CachedTransform { get; private set; }
-    private Vector3 direction;
-    private Vector3 movement;
-    
-    private new Renderer renderer;
-    
+
     public Color Color
     {
         set => renderer.material.color = value;
         get => renderer.material.color;
     }
-    
+
     private void Awake()
     {
         CachedTransform = transform;

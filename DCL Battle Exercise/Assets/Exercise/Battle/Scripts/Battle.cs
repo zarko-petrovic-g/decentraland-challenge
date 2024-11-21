@@ -1,4 +1,3 @@
-using System;
 using System.Collections.Generic;
 using UnityEngine;
 
@@ -36,10 +35,10 @@ public class Battle : MonoBehaviour
 
     [SerializeField]
     private float minUnitDistance = 2f;
-    
+
     [SerializeField]
     private float battleRadius = 80f;
-    
+
     private readonly List<UnitBase> allUnits = new List<UnitBase>();
 
     public IEnumerable<UnitBase> AllUnits => allUnits;
@@ -98,7 +97,7 @@ public class Battle : MonoBehaviour
             }
         }
     }
-    
+
     public bool ClampPosition(UnitBase unit)
     {
         Vector3 position = unit.CachedTransform.position;

@@ -8,14 +8,15 @@ public abstract class UnitBase : MonoBehaviour
     private readonly static int DeathTriggerId = Animator.StringToHash("Death");
     private readonly static int HitTriggerId = Animator.StringToHash("Hit");
 
+    [SerializeField]
+    protected UnitStats stats;
+
     protected Animator animator;
 
     public Army Army;
 
     protected float attackCooldown;
 
-    public float AttackCooldown => attackCooldown;
-    
     [NonSerialized]
     public Battle Battle;
 
@@ -25,15 +26,14 @@ public abstract class UnitBase : MonoBehaviour
 
     protected new Renderer renderer;
 
-    public Transform CachedTransform { get; private set; }
-    
     protected IUnitStrategy UnitStrategy;
 
-    [SerializeField]
-    protected UnitStats stats;
-    
+    public float AttackCooldown => attackCooldown;
+
+    public Transform CachedTransform { get; private set; }
+
     public float CurrentHealth { get; private set; }
-    
+
     public Color Color
     {
         set => renderer.material.color = value;
@@ -41,7 +41,7 @@ public abstract class UnitBase : MonoBehaviour
     }
 
     public abstract ArmyStrategy ArmyStrategy { set; }
-    
+
     public float AttackRange => stats.attackRange;
     public float Speed => stats.speed;
     public float Defense => stats.defense;
@@ -49,7 +49,7 @@ public abstract class UnitBase : MonoBehaviour
     public float PostAttackDelay => stats.postAttackDelay;
     public float MaxHealth => stats.health;
     public float AttackDamage => stats.attack;
-    
+
 
     protected virtual void Awake()
     {
@@ -63,7 +63,9 @@ public abstract class UnitBase : MonoBehaviour
     private void Update()
     {
         if(CurrentHealth < 0)
+        {
             return;
+        }
 
         attackCooldown -= Time.deltaTime;
         bool positionChanged = Battle.ClampPosition(this);
@@ -82,11 +84,13 @@ public abstract class UnitBase : MonoBehaviour
     public event Action<UnitBase> OnDeath;
 
     public abstract void Attack(UnitBase enemy);
-    
+
     public virtual void Move(Vector3 delta)
     {
         if(attackCooldown > MaxAttackCooldown - PostAttackDelay)
+        {
             return;
+        }
 
         transform.position += delta * Speed;
     }

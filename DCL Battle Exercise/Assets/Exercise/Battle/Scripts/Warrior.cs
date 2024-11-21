@@ -19,12 +19,16 @@ public class Warrior : UnitBase
     public override void Attack(UnitBase enemy)
     {
         if(attackCooldown > 0)
+        {
             return;
+        }
 
         Vector3 position = CachedTransform.position;
 
         if(Vector3.Distance(position, enemy.CachedTransform.position) > AttackRange)
+        {
             return;
+        }
 
         attackCooldown = MaxAttackCooldown;
 
