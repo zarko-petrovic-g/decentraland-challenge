@@ -38,7 +38,14 @@ public class Battle : MonoBehaviour
 
     [SerializeField]
     private float battleRadius = 80f;
+    
+    public float BattlefieldSize => battleRadius * 2.5f; // *2 should be just enough but add some extra space just in case
 
+    [SerializeField]
+    private float partitionSize = 10f;
+    
+    public float PartitionSize => partitionSize;
+    
     private readonly List<UnitBase> allUnits = new List<UnitBase>();
 
     public IEnumerable<UnitBase> AllUnits => allUnits;
@@ -52,6 +59,7 @@ public class Battle : MonoBehaviour
     {
         Army1 = new Army();
         Army2 = new Army();
+        // TODO it's not really scalable if there are more types of units
         Army1.InstantiateUnits(army1Model, leftArmySpawnBounds.bounds, warriorPrefab, archerPrefab, army1Color, Army2,
             this);
 
@@ -93,7 +101,7 @@ public class Battle : MonoBehaviour
             {
                 Vector3 toNearest = (toEvadePosition - position).normalized;
                 position -= toNearest * (minUnitDistance - dist);
-                unit.CachedTransform.position = position;
+                unit.SetPosition(position);
             }
         }
     }
@@ -106,7 +114,8 @@ public class Battle : MonoBehaviour
         if(centerDist > battleRadius)
         {
             Vector3 toNearest = Center - position;
-            unit.CachedTransform.position -= toNearest.normalized * (battleRadius - centerDist);
+            Vector3 newPosition = position - toNearest.normalized * (battleRadius - centerDist);
+            unit.SetPosition(newPosition);
             return true;
         }
 
@@ -115,6 +124,8 @@ public class Battle : MonoBehaviour
 
     private void UnitDied(UnitBase unit)
     {
+        unit.OnDeath -= UnitDied;
+        
         allUnits.Remove(unit);
 
         if(Army1.UnitCount == 0 || Army2.UnitCount == 0 && !gameOverMenu.gameObject.activeInHierarchy)

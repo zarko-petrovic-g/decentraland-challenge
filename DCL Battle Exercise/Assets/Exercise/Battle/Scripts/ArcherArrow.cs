@@ -42,10 +42,11 @@ public class ArcherArrow : MonoBehaviour
 
     public void Update()
     {
-        transform.position += movement;
+        CachedTransform.position += movement;
 
         Vector3 position = CachedTransform.position;
 
+        // TODO use partitions
         foreach(UnitBase unit in EnemyArmy.Units)
         {
             float dist = Vector3.Distance(unit.CachedTransform.position, position);

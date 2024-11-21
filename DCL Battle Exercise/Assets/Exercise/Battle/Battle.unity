@@ -483,6 +483,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 3bea60d6af332ea4386a167b548d09c4, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  rotationRubber: 0.1
 --- !u!1 &443984562
 GameObject:
   m_ObjectHideFlags: 0
@@ -1043,6 +1044,9 @@ MonoBehaviour:
   army2Color: {r: 0.15909089, g: 0.75, b: 0.262987, a: 1}
   gameOverMenu: {fileID: 1714358169}
   cameraController: {fileID: 354391277}
+  minUnitDistance: 2
+  battleRadius: 80
+  partitionSize: 10
 --- !u!4 &1951697636
 Transform:
   m_ObjectHideFlags: 0

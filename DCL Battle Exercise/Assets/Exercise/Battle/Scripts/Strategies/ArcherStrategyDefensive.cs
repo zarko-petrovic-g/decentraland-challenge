@@ -12,9 +12,8 @@ public class ArcherStrategyDefensive : UnitStrategy
 
         Vector3 position = unit.CachedTransform.position;
 
-        bool enemyFound =
-            Utils.GetNearestEnemy(position, unit.EnemyArmy.Units, out float distToNearest, out UnitBase nearestEnemy);
-
+        bool enemyFound = unit.EnemyArmy.GetNearestUnit(position, out float distToNearest, out UnitBase nearestEnemy);
+        
         if(!enemyFound)
         {
             return;

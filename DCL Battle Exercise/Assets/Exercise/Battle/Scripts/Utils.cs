@@ -12,14 +12,14 @@ public static class Utils
     }
 
     public static Vector3 GetCenter<T>(IEnumerable<T> objects)
-        where T : MonoBehaviour
+        where T : UnitBase
     {
         Vector3 result = Vector3.zero;
         int count = 0;
 
         foreach(T o in objects)
         {
-            result += o.transform.position;
+            result += o.CachedTransform.position;
             count++;
         }
 
@@ -32,14 +32,14 @@ public static class Utils
 
     // more performant compared to the IEnumerable version
     public static Vector3 GetCenter<T>(List<T> objects)
-        where T : MonoBehaviour
+        where T : UnitBase
     {
         Vector3 result = Vector3.zero;
         int count = objects.Count;
 
         for(int i = 0; i < count; i++)
         {
-            result += objects[i].transform.position;
+            result += objects[i].CachedTransform.position;
         }
 
         result.x /= count;

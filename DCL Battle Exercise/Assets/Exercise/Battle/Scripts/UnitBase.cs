@@ -13,8 +13,6 @@ public abstract class UnitBase : MonoBehaviour
 
     protected Animator animator;
 
-    public Army Army;
-
     protected float attackCooldown;
 
     [NonSerialized]
@@ -30,6 +28,10 @@ public abstract class UnitBase : MonoBehaviour
 
     public float AttackCooldown => attackCooldown;
 
+    /// <summary>
+    /// Cached transform component for performance reasons, avoiding calling transform.get_position which has a native part and is slower.
+    /// Do not modify position directly, use <see cref="Move"/> or <see cref="SetPosition"/> method instead.
+    /// </summary>
     public Transform CachedTransform { get; private set; }
 
     public float CurrentHealth { get; private set; }
@@ -82,9 +84,14 @@ public abstract class UnitBase : MonoBehaviour
     }
 
     public event Action<UnitBase> OnDeath;
+    public event Action<UnitBase, Vector3> OnMove;
 
     public abstract void Attack(UnitBase enemy);
 
+    /// <summary>
+    /// Use for gameplay unit movement. If you want to teleport unit, use <see cref="SetPosition"/> instead.
+    /// </summary>
+    /// <param name="delta">Normalized direction of movement</param>
     public virtual void Move(Vector3 delta)
     {
         if(attackCooldown > MaxAttackCooldown - PostAttackDelay)
@@ -92,7 +99,20 @@ public abstract class UnitBase : MonoBehaviour
             return;
         }
 
-        transform.position += delta * Speed;
+        Vector3 oldPosition = CachedTransform.position;
+        CachedTransform.position += delta * Speed;
+        OnMove?.Invoke(this, oldPosition);
+    }
+    
+    /// <summary>
+    /// Used to teleport unit to a new position. Use <see cref="Move"/> for gameplay movement.
+    /// </summary>
+    /// <param name="position">New position</param>
+    public void SetPosition(Vector3 position)
+    {
+        Vector3 oldPosition = CachedTransform.position;
+        CachedTransform.position = position;
+        OnMove?.Invoke(this, oldPosition);
     }
 
     public virtual void Hit(float damage, Vector3 attackerPosition)
@@ -102,7 +122,6 @@ public abstract class UnitBase : MonoBehaviour
         if(CurrentHealth < 0)
         {
             CachedTransform.forward = attackerPosition - CachedTransform.position;
-            Army.Remove(this);
             OnDeath?.Invoke(this);
             animator.SetTrigger(DeathTriggerId);
         }
