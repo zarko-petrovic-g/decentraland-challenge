@@ -38,15 +38,16 @@ public class Battle : MonoBehaviour
 
     [SerializeField]
     private float battleRadius = 80f;
-    
-    public float BattlefieldSize => battleRadius * 2.5f; // *2 should be just enough but add some extra space just in case
 
     [SerializeField]
     private float partitionSize = 10f;
-    
-    public float PartitionSize => partitionSize;
-    
+
     private readonly List<UnitBase> allUnits = new List<UnitBase>();
+
+    public float BattlefieldSize =>
+        battleRadius * 2.5f; // *2 should be just enough but add some extra space just in case
+
+    public float PartitionSize => partitionSize;
 
     public IEnumerable<UnitBase> AllUnits => allUnits;
 
@@ -88,22 +89,8 @@ public class Battle : MonoBehaviour
 
     public void EvadeOtherUnits(UnitBase unit)
     {
-        Vector3 position = unit.CachedTransform.position;
-        int count = allUnits.Count;
-
-        for(int i = 0; i < count; i++)
-        {
-            UnitBase otherUnit = allUnits[i];
-            Vector3 toEvadePosition = otherUnit.CachedTransform.position;
-            float dist = Vector3.Distance(position, toEvadePosition);
-
-            if(dist < minUnitDistance)
-            {
-                Vector3 toNearest = (toEvadePosition - position).normalized;
-                position -= toNearest * (minUnitDistance - dist);
-                unit.SetPosition(position);
-            }
-        }
+        Army1.EvadeOtherUnits(unit, minUnitDistance);
+        Army2.EvadeOtherUnits(unit, minUnitDistance);
     }
 
     public bool ClampPosition(UnitBase unit)
@@ -125,7 +112,7 @@ public class Battle : MonoBehaviour
     private void UnitDied(UnitBase unit)
     {
         unit.OnDeath -= UnitDied;
-        
+
         allUnits.Remove(unit);
 
         if(Army1.UnitCount == 0 || Army2.UnitCount == 0 && !gameOverMenu.gameObject.activeInHierarchy)

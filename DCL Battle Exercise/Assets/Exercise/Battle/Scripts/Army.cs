@@ -4,24 +4,24 @@ using UnityEngine;
 public class Army
 {
     private readonly List<UnitBase> units = new List<UnitBase>();
+
+    private UnitsGrid unitsGrid;
     public IEnumerable<UnitBase> Units => units;
 
     public int UnitCount => units.Count;
     public Vector3 Center { get; private set; }
-    
-    private UnitsGrid unitsGrid;
 
     public void InstantiateUnits(IArmyModel model, Bounds bounds, Warrior warriorPrefab, Archer archerPrefab,
         Color color, Army enemyArmy, Battle battle)
     {
         unitsGrid = new UnitsGrid(battle.BattlefieldSize, battle.PartitionSize);
-        
+
         for(int i = 0; i < model.warriors; i++)
         {
             InstantiateUnit(warriorPrefab, bounds, model.strategy, color, enemyArmy, battle);
         }
 
-        for(int i = 0; i < model.archers; i++) 
+        for(int i = 0; i < model.archers; i++)
         {
             InstantiateUnit(archerPrefab, bounds, model.strategy, color, enemyArmy, battle);
         }
@@ -40,7 +40,7 @@ public class Army
         unit.ArmyStrategy = strategy;
         unit.OnDeath += Remove;
         unit.OnMove += unitsGrid.OnUnitMoved;
-        
+
         units.Add(unit);
         unitsGrid.Add(unit);
     }
@@ -60,11 +60,22 @@ public class Army
         {
             Debug.LogError("Unit not found in the army", unit);
         }
+
         unitsGrid.Remove(unit);
     }
-    
+
     public bool GetNearestUnit(Vector3 source, out float minDistance, out UnitBase nearestEnemy)
     {
         return unitsGrid.GetClosest(source, out nearestEnemy, out minDistance);
+    }
+
+    public void EvadeOtherUnits(UnitBase unit, float minUnitDistance)
+    {
+        unitsGrid.EvadeOtherUnits(unit, minUnitDistance);
+    }
+
+    public bool FindUnitInRadius(Vector3 position, float radius, out UnitBase unit)
+    {
+        return unitsGrid.FindUnitInRange(position, radius, out unit);
     }
 }

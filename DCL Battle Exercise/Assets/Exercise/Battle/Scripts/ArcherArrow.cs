@@ -46,17 +46,11 @@ public class ArcherArrow : MonoBehaviour
 
         Vector3 position = CachedTransform.position;
 
-        // TODO use partitions
-        foreach(UnitBase unit in EnemyArmy.Units)
+        if(EnemyArmy.FindUnitInRadius(position, Speed, out UnitBase unit))
         {
-            float dist = Vector3.Distance(unit.CachedTransform.position, position);
-
-            if(dist < Speed)
-            {
-                unit.Hit(Attack, position);
-                Destroy(gameObject);
-                return;
-            }
+            unit.Hit(Attack, position);
+            Destroy(gameObject);
+            return;
         }
 
         if(Vector3.Distance(position, Target) < Speed)

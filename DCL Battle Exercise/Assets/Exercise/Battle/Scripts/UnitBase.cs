@@ -29,8 +29,9 @@ public abstract class UnitBase : MonoBehaviour
     public float AttackCooldown => attackCooldown;
 
     /// <summary>
-    /// Cached transform component for performance reasons, avoiding calling transform.get_position which has a native part and is slower.
-    /// Do not modify position directly, use <see cref="Move"/> or <see cref="SetPosition"/> method instead.
+    ///     Cached transform component for performance reasons, avoiding calling transform.get_position
+    ///     which has a native part and is slower.
+    ///     Do not modify position directly, use <see cref="Move" /> or <see cref="SetPosition" /> method instead.
     /// </summary>
     public Transform CachedTransform { get; private set; }
 
@@ -60,6 +61,8 @@ public abstract class UnitBase : MonoBehaviour
         hasAnimator = animator != null;
         renderer = GetComponentInChildren<Renderer>();
         CurrentHealth = MaxHealth;
+
+        name += "_" + GetHashCode();
     }
 
     private void Update()
@@ -89,7 +92,7 @@ public abstract class UnitBase : MonoBehaviour
     public abstract void Attack(UnitBase enemy);
 
     /// <summary>
-    /// Use for gameplay unit movement. If you want to teleport unit, use <see cref="SetPosition"/> instead.
+    ///     Use for gameplay unit movement. If you want to teleport unit, use <see cref="SetPosition" /> instead.
     /// </summary>
     /// <param name="delta">Normalized direction of movement</param>
     public virtual void Move(Vector3 delta)
@@ -103,9 +106,9 @@ public abstract class UnitBase : MonoBehaviour
         CachedTransform.position += delta * Speed;
         OnMove?.Invoke(this, oldPosition);
     }
-    
+
     /// <summary>
-    /// Used to teleport unit to a new position. Use <see cref="Move"/> for gameplay movement.
+    ///     Used to teleport unit to a new position. Use <see cref="Move" /> for gameplay movement.
     /// </summary>
     /// <param name="position">New position</param>
     public void SetPosition(Vector3 position)
