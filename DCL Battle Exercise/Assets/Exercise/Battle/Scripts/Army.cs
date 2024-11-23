@@ -28,7 +28,7 @@ public class Army
             InstantiateUnit(archerPrefab, bounds, model.Strategy, color, enemyArmy, battle, unitsInstantiated++);
         }
 
-        Center = Utils.GetCenter(Units);
+        Center = Utils.GetCenter(units);
     }
 
     private void InstantiateUnit(UnitBase original, Bounds bounds, ArmyStrategy strategy, Color color, Army enemyArmy,
@@ -50,13 +50,19 @@ public class Army
 
     public void Update()
     {
-        Center = Utils.GetCenter(Units);
+        Center = Utils.GetCenter(units);
     }
 
     private void Remove(UnitBase unit)
     {
-        unit.OnDeath -= Remove;
-        unit.OnMove -= unitsGrid.OnUnitMoved;
+        // not unsubscribing from events because it allocates memory
+        // https://stackoverflow.com/questions/29587567/high-memory-allocations-when-unregistering-delegates-from-event-in-c-sharp
+        // it would be natural to unsubscribe but since our units don't update when dead,
+        // and we remove them from the collections, it's not necessary
+
+        // unit.OnDeath -= Remove;
+        // unit.OnMove -= unitsGrid.OnUnitMoved;
+
         bool removed = units.Remove(unit);
 
         if(!removed)

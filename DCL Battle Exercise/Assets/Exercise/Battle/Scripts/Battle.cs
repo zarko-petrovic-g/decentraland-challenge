@@ -111,7 +111,12 @@ public class Battle : MonoBehaviour
 
     private void UnitDied(UnitBase unit)
     {
-        unit.OnDeath -= UnitDied;
+        // not unsubscribing from events because it allocates memory
+        // https://stackoverflow.com/questions/29587567/high-memory-allocations-when-unregistering-delegates-from-event-in-c-sharp
+        // it would be natural to unsubscribe but since our units don't update when dead,
+        // and we remove them from the collections, it's not necessary
+
+        // unit.OnDeath -= UnitDied;
 
         allUnits.Remove(unit);
 

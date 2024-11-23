@@ -28,7 +28,7 @@ public class UnitsGrid
         {
             for(int j = 0; j < gridSize; j++)
             {
-                grid[i, j] = new List<UnitBase>();
+                grid[i, j] = new List<UnitBase>(unitCount);
             }
         }
 
@@ -103,7 +103,7 @@ public class UnitsGrid
         return (x, z);
     }
 
-    private float GetMinDistance(Vector3 position, int cellX, int cellZ, int radiusCells)
+    private float GetMinEdgeDistance(Vector3 position, int cellX, int cellZ, int radiusCells)
     {
         // square edges
         float edgeLeft = Mathf.Max(0f, cellX - radiusCells) * cellSize - halfBattlefieldSize;
@@ -117,7 +117,11 @@ public class UnitsGrid
         float distanceBottom = position.z - edgeBottom;
         float distanceTop = edgeTop - position.z;
 
-        float minEdgeDistance = Mathf.Min(distanceLeft, distanceRight, distanceBottom, distanceTop);
+        // avoiding the params version of Mathf.Min to avoid allocating memory
+        float minEdgeDistance = Mathf.Min(
+            Mathf.Min(distanceLeft, distanceRight),
+            Mathf.Min(distanceBottom, distanceTop)
+        );
 
         return minEdgeDistance;
     }
@@ -146,7 +150,7 @@ public class UnitsGrid
                 // i.e. if this one was far diagonally but there's a close one horizontally or vertically
                 // now we want to check that
 
-                float minEdgeDistance = GetMinDistance(position, x, z, radiusCells);
+                float minEdgeDistance = GetMinEdgeDistance(position, x, z, radiusCells);
 
                 if(distance <= minEdgeDistance)
                 {
@@ -374,7 +378,7 @@ public class UnitsGrid
     public bool FindUnitInRange(Vector3 position, float range, out UnitBase unit)
     {
         (int cellX, int cellZ) = GetGridIndices(position);
-        float minDistance = GetMinDistance(position, cellX, cellZ, 0);
+        float minDistance = GetMinEdgeDistance(position, cellX, cellZ, 0);
 
         int radiusCells = Mathf.CeilToInt((range - minDistance) / cellSize);
 

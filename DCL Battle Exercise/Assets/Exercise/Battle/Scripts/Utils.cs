@@ -11,26 +11,6 @@ public static class Utils
         return pos;
     }
 
-    public static Vector3 GetCenter<T>(IEnumerable<T> objects)
-        where T : UnitBase
-    {
-        Vector3 result = Vector3.zero;
-        int count = 0;
-
-        foreach(T o in objects)
-        {
-            result += o.CachedTransform.position;
-            count++;
-        }
-
-        result.x /= count;
-        result.y /= count;
-        result.z /= count;
-
-        return result;
-    }
-
-    // more performant compared to the IEnumerable version
     public static Vector3 GetCenter<T>(List<T> objects)
         where T : UnitBase
     {
