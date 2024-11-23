@@ -6,6 +6,8 @@ public class Archer : UnitBase
     [SerializeField]
     private ArcherArrow arrowPrefab;
 
+    public ArcherArrow ArrowPrefab => arrowPrefab;
+
     protected ArcherStats ArcherStats => (ArcherStats)stats;
 
     public override ArmyStrategy ArmyStrategy
@@ -28,23 +30,21 @@ public class Archer : UnitBase
             return;
         }
 
-        if(Vector3.Distance(CachedTransform.position, enemy.CachedTransform.position) > AttackRange)
+        Vector3 position = CachedTransform.position;
+
+        if(Vector3.Distance(position, enemy.CachedTransform.position) > AttackRange)
         {
             return;
         }
 
         attackCooldown = MaxAttackCooldown;
-        ArcherArrow arrow = Instantiate(arrowPrefab, CachedTransform.position, Quaternion.identity);
-        arrow.Target = enemy.CachedTransform.position;
-        arrow.Attack = AttackDamage;
-        arrow.EnemyArmy = EnemyArmy;
-        arrow.Speed = ArcherStats.arrowSpeed;
+        var arrow = Battle.Pool.Get(PoolableCategory.ArcherArrow) as ArcherArrow;
+        arrow.Init(position, enemy.CachedTransform.position, AttackDamage, EnemyArmy, ArcherStats.arrowSpeed, Color,
+            Battle.Pool);
 
         if(hasAnimator)
         {
             animator.SetTrigger(AttackTriggerId);
         }
-
-        arrow.Color = Color;
     }
 }

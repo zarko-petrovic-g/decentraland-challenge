@@ -39,6 +39,8 @@ public abstract class UnitBase : MonoBehaviour
     /// </summary>
     public Transform CachedTransform { get; private set; }
 
+    public GameObject CachedGameObject { get; private set; }
+
     public float CurrentHealth { get; private set; }
 
     public Color Color
@@ -60,12 +62,13 @@ public abstract class UnitBase : MonoBehaviour
     protected virtual void Awake()
     {
         CachedTransform = transform;
+        CachedGameObject = gameObject;
         animator = GetComponentInChildren<Animator>();
         hasAnimator = animator != null;
         renderer = GetComponentInChildren<Renderer>();
         CurrentHealth = MaxHealth;
 
-        name += "_" + GetHashCode();
+        // name += "_" + GetHashCode();
     }
 
     private void Update()
@@ -159,6 +162,6 @@ public abstract class UnitBase : MonoBehaviour
 
     public void OnDeathAnimFinished()
     {
-        Destroy(gameObject);
+        Destroy(CachedGameObject);
     }
 }

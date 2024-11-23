@@ -56,6 +56,8 @@ public class Battle : MonoBehaviour
     public Army Army1 { get; private set; }
     public Army Army2 { get; private set; }
 
+    public Pool Pool { get; private set; }
+
     private void Awake()
     {
         Army1 = new Army();
@@ -78,6 +80,23 @@ public class Battle : MonoBehaviour
         Center = Utils.GetCenter(allUnits);
 
         cameraController.SetArmies(Army1, Army2);
+
+        int arrowCount = army1Model.Archers + army2Model.Archers;
+        var arrows = new ArcherArrow[arrowCount];
+
+        for(int i = 0; i < arrowCount; i++)
+        {
+            arrows[i] = Instantiate(archerPrefab.ArrowPrefab);
+        }
+
+        Pool = new Pool(new[]
+        {
+            new Pool.CategoryData
+            {
+                Category = PoolableCategory.ArcherArrow,
+                Objects = arrows
+            }
+        });
     }
 
     private void Update()
