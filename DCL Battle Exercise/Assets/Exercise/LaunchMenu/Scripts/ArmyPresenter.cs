@@ -19,16 +19,16 @@ public class ArmyPresenter : IArmyPresenter
 
     public void UpdateWarriors(int warriors)
     {
-        model.warriors = warriors;
+        model.Warriors = warriors;
     }
 
     public void UpdateArchers(int archers)
     {
-        model.archers = archers;
+        model.Archers = archers;
     }
 
     public void UpdateStrategy(ArmyStrategy strategy)
     {
-        model.strategy = strategy;
+        model.Strategy = strategy;
     }
 }

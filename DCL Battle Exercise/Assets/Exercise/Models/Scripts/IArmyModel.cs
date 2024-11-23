@@ -1,8 +1,10 @@
 public interface IArmyModel
+
 {
-    int warriors { get; set; }
-    int archers { get; set; }
-    ArmyStrategy strategy { get; set; }
+    int Warriors { get; set; }
+    int Archers { get; set; }
+    ArmyStrategy Strategy { get; set; }
+    int TotalUnits { get; }
 }
 
 public enum ArmyStrategy

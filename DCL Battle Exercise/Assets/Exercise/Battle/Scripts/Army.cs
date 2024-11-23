@@ -14,23 +14,25 @@ public class Army
     public void InstantiateUnits(IArmyModel model, Bounds bounds, Warrior warriorPrefab, Archer archerPrefab,
         Color color, Army enemyArmy, Battle battle)
     {
-        unitsGrid = new UnitsGrid(battle.BattlefieldSize, battle.PartitionSize);
+        unitsGrid = new UnitsGrid(battle.BattlefieldSize, battle.PartitionSize, model.TotalUnits);
 
-        for(int i = 0; i < model.warriors; i++)
+        int unitsInstantiated = 0;
+
+        for(int i = 0; i < model.Warriors; i++)
         {
-            InstantiateUnit(warriorPrefab, bounds, model.strategy, color, enemyArmy, battle);
+            InstantiateUnit(warriorPrefab, bounds, model.Strategy, color, enemyArmy, battle, unitsInstantiated++);
         }
 
-        for(int i = 0; i < model.archers; i++)
+        for(int i = 0; i < model.Archers; i++)
         {
-            InstantiateUnit(archerPrefab, bounds, model.strategy, color, enemyArmy, battle);
+            InstantiateUnit(archerPrefab, bounds, model.Strategy, color, enemyArmy, battle, unitsInstantiated++);
         }
 
         Center = Utils.GetCenter(Units);
     }
 
     private void InstantiateUnit(UnitBase original, Bounds bounds, ArmyStrategy strategy, Color color, Army enemyArmy,
-        Battle battle)
+        Battle battle, int index)
     {
         UnitBase unit = Object.Instantiate(original, Utils.GetRandomPosInBounds(bounds), Quaternion.identity);
 
@@ -38,6 +40,7 @@ public class Army
         unit.Color = color;
         unit.Battle = battle;
         unit.ArmyStrategy = strategy;
+        unit.Index = index;
         unit.OnDeath += Remove;
         unit.OnMove += unitsGrid.OnUnitMoved;
 

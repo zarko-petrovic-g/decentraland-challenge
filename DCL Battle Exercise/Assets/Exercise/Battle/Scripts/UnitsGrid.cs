@@ -5,18 +5,18 @@ using UnityEngine;
 public class UnitsGrid
 {
     private static int idCounter;
-    private float battlefieldSize;
     private readonly float cellSize;
     private readonly Queue<(int, int)> cellsToEvade = new Queue<(int, int)>();
 
-    private readonly HashSet<(int, int)> evadedCells = new HashSet<(int, int)>();
-    private readonly HashSet<UnitBase> evadedUnits = new HashSet<UnitBase>();
+    private readonly bool[,] evadedCells;
+    private readonly bool[] evadedUnits;
     private readonly List<UnitBase>[,] grid;
     private readonly int gridSize;
     private readonly float halfBattlefieldSize;
     private readonly int id = idCounter++;
+    private float battlefieldSize;
 
-    public UnitsGrid(float battlefieldSize, float cellSize)
+    public UnitsGrid(float battlefieldSize, float cellSize, int unitCount)
     {
         gridSize = Mathf.CeilToInt(battlefieldSize / cellSize);
         this.cellSize = cellSize;
@@ -31,6 +31,9 @@ public class UnitsGrid
                 grid[i, j] = new List<UnitBase>();
             }
         }
+
+        evadedUnits = new bool[unitCount];
+        evadedCells = new bool[gridSize, gridSize];
 
         // Debug.Log("Created grid with size " + gridSize + "x" + gridSize + " and cell size " + cellSize + ", battlefield size " + battlefieldSize + " ["+id+"]");
     }
@@ -237,9 +240,20 @@ public class UnitsGrid
 
     public void EvadeOtherUnits(UnitBase unit, float minUnitDistance)
     {
-        evadedCells.Clear();
+        for(int i = 0; i < evadedUnits.Length; i++)
+        {
+            evadedUnits[i] = false;
+        }
+
+        for(int i = 0; i < gridSize; i++)
+        {
+            for(int j = 0; j < gridSize; j++)
+            {
+                evadedCells[i, j] = false;
+            }
+        }
+
         cellsToEvade.Clear();
-        evadedUnits.Clear();
 
         Vector3 position = unit.CachedTransform.position;
 
@@ -248,7 +262,7 @@ public class UnitsGrid
         // Debug.Log("Evading other units, pos" + position + "(" + x + "," + z + ")" + " ["+id+"]" + " " + unit.GetHashCode(), unit);
 
         cellsToEvade.Enqueue((x, z));
-        evadedUnits.Add(unit);
+        evadedUnits[unit.Index] = true;
 
         while(cellsToEvade.Count > 0)
         {
@@ -262,7 +276,7 @@ public class UnitsGrid
             {
                 UnitBase otherUnit = units[i];
 
-                if(evadedUnits.Contains(otherUnit))
+                if(evadedUnits[otherUnit.Index])
                 {
                     // Debug.Log("Already evaded unit " + otherUnit.GetHashCode() + " ["+id+"]", otherUnit);
                     continue;
@@ -279,7 +293,7 @@ public class UnitsGrid
                     // Debug.Log("Moving " + unit.GetHashCode() + " to evade " + otherUnit.GetHashCode() + " ["+id+"]" + "newPos: " + position, unit);
                 }
 
-                evadedUnits.Add(otherUnit);
+                evadedUnits[otherUnit.Index] = true;
             }
 
             if(moved)
@@ -287,7 +301,7 @@ public class UnitsGrid
                 unit.SetPosition(position);
             }
 
-            evadedCells.Add((currentX, currentZ));
+            evadedCells[currentX, currentZ] = true;
 
             // cell edges
             float edgeLeft = currentX * cellSize - halfBattlefieldSize;
@@ -350,7 +364,7 @@ public class UnitsGrid
 
     private void EnqueueToEvade(int x, int z)
     {
-        if(!evadedCells.Contains((x, z)))
+        if(!evadedCells[x, z])
         {
             // Debug.Log("Enqueueing to evade " + x + "," + z + " ["+id+"]");
             cellsToEvade.Enqueue((x, z));

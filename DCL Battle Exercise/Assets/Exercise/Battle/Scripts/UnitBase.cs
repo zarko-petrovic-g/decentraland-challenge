@@ -20,6 +20,10 @@ public abstract class UnitBase : MonoBehaviour
 
     public Army EnemyArmy;
     protected bool hasAnimator;
+
+    [NonSerialized]
+    public int Index;
+
     private Vector3 lastPosition;
 
     protected new Renderer renderer;
@@ -52,7 +56,6 @@ public abstract class UnitBase : MonoBehaviour
     public float PostAttackDelay => stats.postAttackDelay;
     public float MaxHealth => stats.health;
     public float AttackDamage => stats.attack;
-
 
     protected virtual void Awake()
     {
