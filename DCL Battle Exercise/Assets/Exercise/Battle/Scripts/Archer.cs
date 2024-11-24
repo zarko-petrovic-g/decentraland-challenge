@@ -16,8 +16,10 @@ public class Archer : UnitBase
         {
             UnitStrategy = value switch
             {
-                ArmyStrategy.Basic => new ArcherStrategyBasic(this),
+                ArmyStrategy.Basic => new StrategyBasic(this),
                 ArmyStrategy.Defensive => new ArcherStrategyDefensive(this),
+                ArmyStrategy.Bloodthirsty => new StrategyBloodthirsty(this),
+                ArmyStrategy.Cowardly => new ArcherStrategyCowardly(this),
                 _ => throw new ArgumentOutOfRangeException()
             };
         }

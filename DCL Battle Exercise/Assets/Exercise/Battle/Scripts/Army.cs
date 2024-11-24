@@ -73,7 +73,7 @@ public class Army
         unitsGrid.Remove(unit);
     }
 
-    public bool GetNearestUnit(Vector3 source, out float minDistance, out UnitBase nearestEnemy)
+    public bool GetClosestUnit(Vector3 source, out float minDistance, out UnitBase nearestEnemy)
     {
         return unitsGrid.GetClosest(source, out nearestEnemy, out minDistance);
     }
@@ -83,8 +83,19 @@ public class Army
         unitsGrid.EvadeOtherUnits(unit, minUnitDistance);
     }
 
-    public bool FindUnitInRadius(Vector3 position, float radius, out UnitBase unit)
+    /// <summary>
+    ///     Finds a unit within a given range from a given position.
+    /// </summary>
+    public bool FindUnit(Vector3 position, float radius, out UnitBase unit)
     {
-        return unitsGrid.FindUnitInRange(position, radius, out unit);
+        return unitsGrid.FindUnit(position, radius, out unit);
+    }
+
+    /// <summary>
+    ///     Finds the unit with the least health within a given range from a given position.
+    /// </summary>
+    public bool FindMinHealthUnit(Vector3 position, float radius, out UnitBase unit)
+    {
+        return unitsGrid.FindMinHealthUnit(position, radius, out unit);
     }
 }

@@ -375,7 +375,10 @@ public class UnitsGrid
         }
     }
 
-    public bool FindUnitInRange(Vector3 position, float range, out UnitBase unit)
+    /// <summary>
+    ///     Finds a unit within a given range from a given position.
+    /// </summary>
+    public bool FindUnit(Vector3 position, float range, out UnitBase unit)
     {
         (int cellX, int cellZ) = GetGridIndices(position);
         float minDistance = GetMinEdgeDistance(position, cellX, cellZ, 0);
@@ -408,5 +411,49 @@ public class UnitsGrid
 
         unit = null;
         return false;
+    }
+
+    /// <summary>
+    ///     Finds the unit with the least health within a given range from a given position.
+    /// </summary>
+    public bool FindMinHealthUnit(Vector3 position, float range, out UnitBase unit)
+    {
+        (int cellX, int cellZ) = GetGridIndices(position);
+        float minDistance = GetMinEdgeDistance(position, cellX, cellZ, 0);
+
+        int radiusCells = Mathf.CeilToInt((range - minDistance) / cellSize);
+
+        int left = Mathf.Max(0, cellX - radiusCells);
+        int right = Mathf.Min(gridSize - 1, cellX + radiusCells);
+        int bottom = Mathf.Max(0, cellZ - radiusCells);
+        int top = Mathf.Min(gridSize - 1, cellZ + radiusCells);
+
+        float minHealth = float.MaxValue;
+        unit = null;
+        bool found = false;
+
+        for(int x = left; x <= right; x++)
+        {
+            for(int z = bottom; z <= top; z++)
+            {
+                List<UnitBase> units = grid[x, z];
+                int count = units.Count;
+
+                for(int i = 0; i < count; i++)
+                {
+                    UnitBase currentUnit = units[i];
+                    float distance = Vector3.Distance(currentUnit.CachedTransform.position, position);
+
+                    if(distance <= range && currentUnit.CurrentHealth < minHealth)
+                    {
+                        minHealth = currentUnit.CurrentHealth;
+                        unit = currentUnit;
+                        found = true;
+                    }
+                }
+            }
+        }
+
+        return found;
     }
 }

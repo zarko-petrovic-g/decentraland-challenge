@@ -9,8 +9,10 @@ public class Warrior : UnitBase
         {
             UnitStrategy = value switch
             {
-                ArmyStrategy.Basic => new WarriorStrategyBasic(this),
+                ArmyStrategy.Basic => new StrategyBasic(this),
                 ArmyStrategy.Defensive => new WarriorStrategyDefensive(this),
+                ArmyStrategy.Bloodthirsty => new StrategyBloodthirsty(this),
+                ArmyStrategy.Cowardly => new WarriorStrategyCowardly(this),
                 _ => throw new ArgumentOutOfRangeException()
             };
         }

@@ -43,7 +43,7 @@ public class ArcherArrow : MonoBehaviour, IPoolable
         position += movement;
         CachedTransform.position = position;
 
-        if(EnemyArmy.FindUnitInRadius(position, Speed, out UnitBase unit))
+        if(EnemyArmy.FindUnit(position, Speed, out UnitBase unit))
         {
             unit.Hit(Attack, position);
             pool.Return(this);

@@ -14,7 +14,7 @@ public class WarriorStrategyDefensive : UnitStrategy
 
         Vector3 position = unit.CachedTransform.position;
 
-        bool enemyFound = unit.EnemyArmy.GetNearestUnit(position, out _, out UnitBase enemy);
+        bool enemyFound = unit.EnemyArmy.GetClosestUnit(position, out _, out UnitBase enemy);
 
         if(!enemyFound)
         {
