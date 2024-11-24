@@ -9,6 +9,9 @@ public class GameOverMenu : MonoBehaviour
     private TextMeshProUGUI armyWins;
 
     [SerializeField]
+    private RectTransform content;
+
+    [SerializeField]
     private Button goToMenu;
 
     [SerializeField]
@@ -19,14 +22,26 @@ public class GameOverMenu : MonoBehaviour
         goToMenu.onClick.AddListener(GoToMenu);
     }
 
-    public void Populate()
+    private void Start()
     {
-        if(battle.Army1.UnitCount == 0)
+        content.gameObject.SetActive(false);
+        battle.OnGameOver += OnGameOver;
+    }
+
+    private void OnGameOver(Army winner)
+    {
+        content.gameObject.SetActive(true);
+        Populate(winner);
+    }
+
+    private void Populate(Army winner)
+    {
+        if(battle.Army1 == winner)
         {
             armyWins.text = "Army 1 wins!";
         }
 
-        if(battle.Army2.UnitCount == 0)
+        if(battle.Army2 == winner)
         {
             armyWins.text = "Army 2 wins!";
         }

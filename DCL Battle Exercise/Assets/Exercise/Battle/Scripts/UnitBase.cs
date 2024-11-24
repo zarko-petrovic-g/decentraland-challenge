@@ -132,6 +132,7 @@ public abstract class UnitBase : MonoBehaviour
         {
             CachedTransform.forward = attackerPosition - CachedTransform.position;
             OnDeath?.Invoke(this);
+            Battle.UnitDied(this);
             animator.SetTrigger(DeathTriggerId);
         }
         else

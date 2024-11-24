@@ -1,4 +1,4 @@
-using System.Collections.Generic;
+using System;
 using UnityEngine;
 
 public class Battle : MonoBehaviour
@@ -28,12 +28,6 @@ public class Battle : MonoBehaviour
     private Color army2Color;
 
     [SerializeField]
-    private GameOverMenu gameOverMenu;
-
-    [SerializeField]
-    private CameraController cameraController;
-
-    [SerializeField]
     private float minUnitDistance = 2f;
 
     [SerializeField]
@@ -42,14 +36,12 @@ public class Battle : MonoBehaviour
     [SerializeField]
     private float partitionSize = 10f;
 
-    private readonly List<UnitBase> allUnits = new List<UnitBase>();
+    private bool gameOver;
 
     public float BattlefieldSize =>
         battleRadius * 2.5f; // *2 should be just enough but add some extra space just in case
 
     public float PartitionSize => partitionSize;
-
-    public IEnumerable<UnitBase> AllUnits => allUnits;
 
     public Vector3 Center { get; private set; }
 
@@ -69,17 +61,7 @@ public class Battle : MonoBehaviour
         Army2.InstantiateUnits(army2Model, rightArmySpawnBounds.bounds, warriorPrefab, archerPrefab, army2Color, Army1,
             this);
 
-        allUnits.AddRange(Army1.Units);
-        allUnits.AddRange(Army2.Units);
-
-        foreach(UnitBase unit in allUnits)
-        {
-            unit.OnDeath += UnitDied;
-        }
-
-        Center = Utils.GetCenter(allUnits);
-
-        cameraController.SetArmies(Army1, Army2);
+        Center = CalculateCenter();
 
         int arrowCount = army1Model.Archers + army2Model.Archers;
         var arrows = new ArcherArrow[arrowCount];
@@ -103,8 +85,10 @@ public class Battle : MonoBehaviour
     {
         Army1.Update();
         Army2.Update();
-        Center = Utils.GetCenter(allUnits);
+        Center = CalculateCenter();
     }
+
+    public event Action<Army> OnGameOver;
 
     public void EvadeOtherUnits(UnitBase unit)
     {
@@ -128,21 +112,17 @@ public class Battle : MonoBehaviour
         return false;
     }
 
-    private void UnitDied(UnitBase unit)
+    public void UnitDied(UnitBase unit)
     {
-        // not unsubscribing from events because it allocates memory
-        // https://stackoverflow.com/questions/29587567/high-memory-allocations-when-unregistering-delegates-from-event-in-c-sharp
-        // it would be natural to unsubscribe but since our units don't update when dead,
-        // and we remove them from the collections, it's not necessary
-
-        // unit.OnDeath -= UnitDied;
-
-        allUnits.Remove(unit);
-
-        if(Army1.UnitCount == 0 || Army2.UnitCount == 0 && !gameOverMenu.gameObject.activeInHierarchy)
+        if((Army1.UnitCount == 0 || Army2.UnitCount == 0) && !gameOver)
         {
-            gameOverMenu.gameObject.SetActive(true);
-            gameOverMenu.Populate();
+            OnGameOver?.Invoke(Army1.UnitCount == 0 ? Army2 : Army1);
+            gameOver = true;
         }
+    }
+
+    private Vector3 CalculateCenter()
+    {
+        return (Army1.Center * Army1.UnitCount + Army2.Center * Army2.UnitCount) / (Army1.UnitCount + Army2.UnitCount);
     }
 }
