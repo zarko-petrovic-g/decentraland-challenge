@@ -242,7 +242,7 @@ public class UnitsGrid
         return found;
     }
 
-    public void EvadeOtherUnits(UnitBase unit, float minUnitDistance)
+    public void EvadeOtherUnits(UnitBase unit, float minUnitDistance, bool isAllied)
     {
         for(int i = 0; i < evadedUnits.Length; i++)
         {
@@ -266,7 +266,11 @@ public class UnitsGrid
         // Debug.Log("Evading other units, pos" + position + "(" + x + "," + z + ")" + " ["+id+"]" + " " + unit.GetHashCode(), unit);
 
         cellsToEvade.Enqueue((x, z));
-        evadedUnits[unit.Index] = true;
+
+        if(isAllied)
+        {
+            evadedUnits[unit.Index] = true;
+        }
 
         while(cellsToEvade.Count > 0)
         {
@@ -449,6 +453,43 @@ public class UnitsGrid
                         minHealth = currentUnit.CurrentHealth;
                         unit = currentUnit;
                         found = true;
+                    }
+                }
+            }
+        }
+
+        return found;
+    }
+
+    public int GetUnits(Vector3 position, float range, UnitBase[] hits)
+    {
+        (int cellX, int cellZ) = GetGridIndices(position);
+        float minDistance = GetMinEdgeDistance(position, cellX, cellZ, 0);
+
+        int radiusCells = Mathf.CeilToInt((range - minDistance) / cellSize);
+
+        int left = Mathf.Max(0, cellX - radiusCells);
+        int right = Mathf.Min(gridSize - 1, cellX + radiusCells);
+        int bottom = Mathf.Max(0, cellZ - radiusCells);
+        int top = Mathf.Min(gridSize - 1, cellZ + radiusCells);
+
+        int found = 0;
+
+        for(int x = left; x <= right; x++)
+        {
+            for(int z = bottom; z <= top; z++)
+            {
+                List<UnitBase> units = grid[x, z];
+                int count = units.Count;
+
+                for(int i = 0; i < count; i++)
+                {
+                    UnitBase currentUnit = units[i];
+                    float distance = Vector3.Distance(currentUnit.CachedTransform.position, position);
+
+                    if(distance <= range)
+                    {
+                        hits[found++] = currentUnit;
                     }
                 }
             }

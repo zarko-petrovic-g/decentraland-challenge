@@ -1,8 +1,8 @@
 using UnityEngine;
 
-public class WarriorStrategyCowardly : UnitStrategy
+public class MeleeStrategyCowardly : UnitStrategy
 {
-    public WarriorStrategyCowardly(UnitBase unit) : base(unit) { }
+    public MeleeStrategyCowardly(UnitBase unit) : base(unit) { }
 
     public override void Update()
     {

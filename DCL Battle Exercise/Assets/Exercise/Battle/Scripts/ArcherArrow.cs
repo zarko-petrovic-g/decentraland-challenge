@@ -1,41 +1,8 @@
-using System;
 using UnityEngine;
 
-public class ArcherArrow : MonoBehaviour, IPoolable
+public class ArcherArrow : Projectile
 {
-    [NonSerialized]
-    public float Attack;
-
-    private Vector3 direction;
-
-    public Army EnemyArmy;
-
-    private Material material;
-    private Vector3 movement;
-    private Pool pool;
-
-    private new Renderer renderer;
-
-    [NonSerialized]
-    public float Speed;
-
-    [NonSerialized]
-    public Vector3 Target;
-
-    public Transform CachedTransform { get; private set; }
-
-    public Color Color
-    {
-        set => material.color = value;
-        get => material.color;
-    }
-
-    private void Awake()
-    {
-        CachedTransform = transform;
-        renderer = GetComponent<Renderer>();
-        material = renderer.material;
-    }
+    public override PoolableCategory Category => PoolableCategory.ArcherArrow;
 
     public void Update()
     {
@@ -43,45 +10,22 @@ public class ArcherArrow : MonoBehaviour, IPoolable
         position += movement;
         CachedTransform.position = position;
 
-        if(EnemyArmy.FindUnit(position, Speed, out UnitBase unit))
+        if(enemyArmy.FindUnit(position, speed, out UnitBase unit))
         {
-            unit.Hit(Attack, position);
+            unit.Hit(attack, position);
             pool.Return(this);
             return;
         }
 
-        if(Vector3.Distance(position, Target) < Speed)
+        if(Vector3.Distance(position, target) < speed)
         {
             pool.Return(this);
         }
     }
 
-    public void AcquireFromPool()
+    public new void Init(Vector3 position, Vector3 target, float attack, Army enemyArmy, float speed, Color color,
+        Pool pool)
     {
-        enabled = true;
-        renderer.enabled = true;
-    }
-
-    public void ReturnToPool()
-    {
-        enabled = false;
-        renderer.enabled = false;
-    }
-
-    public PoolableCategory Category => PoolableCategory.ArcherArrow;
-
-    public void Init(Vector3 position, Vector3 target, float attackDamage, Army enemyArmy, float archerStatsArrowSpeed,
-        Color color, Pool pool)
-    {
-        CachedTransform.position = position;
-        Target = target;
-        Attack = attackDamage;
-        EnemyArmy = enemyArmy;
-        Speed = archerStatsArrowSpeed;
-        Color = color;
-        this.pool = pool;
-        direction = (Target - CachedTransform.position).normalized;
-        movement = direction * Speed;
-        CachedTransform.forward = direction;
+        base.Init(position, target, attack, enemyArmy, speed, color, pool);
     }
 }

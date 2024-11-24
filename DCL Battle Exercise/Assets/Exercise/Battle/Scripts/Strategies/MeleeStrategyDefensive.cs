@@ -1,10 +1,10 @@
 using UnityEngine;
 
-public class WarriorStrategyDefensive : UnitStrategy
+public class MeleeStrategyDefensive : UnitStrategy
 {
     private const float MaxEnemyCenterDistance = 20f;
 
-    public WarriorStrategyDefensive(UnitBase unit) : base(unit) { }
+    public MeleeStrategyDefensive(UnitBase unit) : base(unit) { }
 
     public override void Update()
     {

@@ -2,6 +2,7 @@ public interface IArmyPresenter
 {
     void UpdateWarriors(int warriors);
     void UpdateArchers(int archers);
+    void UpdateCannons(int cannons);
     void UpdateStrategy(ArmyStrategy strategy);
 }
 
@@ -25,6 +26,11 @@ public class ArmyPresenter : IArmyPresenter
     public void UpdateArchers(int archers)
     {
         model.Archers = archers;
+    }
+
+    public void UpdateCannons(int cannons)
+    {
+        model.Cannons = cannons;
     }
 
     public void UpdateStrategy(ArmyStrategy strategy)

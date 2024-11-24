@@ -1,8 +1,8 @@
 using UnityEngine;
 
-public class ArcherStrategyDefensive : UnitStrategy
+public class RangedStrategyDefensive : UnitStrategy
 {
-    public ArcherStrategyDefensive(UnitBase unit) : base(unit) { }
+    public RangedStrategyDefensive(UnitBase unit) : base(unit) { }
 
     public override void Update()
     {

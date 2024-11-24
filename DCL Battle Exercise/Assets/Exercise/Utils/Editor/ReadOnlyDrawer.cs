@@ -2,13 +2,13 @@ using UnityEditor;
 using UnityEngine;
 
 /// <summary>
-/// This class contain custom drawer for ReadOnly attribute.
+///     This class contain custom drawer for ReadOnly attribute.
 /// </summary>
 [CustomPropertyDrawer(typeof(ReadOnlyAttribute))]
 public class ReadOnlyDrawer : PropertyDrawer
 {
     /// <summary>
-    /// Unity method for drawing GUI in Editor
+    ///     Unity method for drawing GUI in Editor
     /// </summary>
     /// <param name="position">Position.</param>
     /// <param name="property">Property.</param>
@@ -16,7 +16,7 @@ public class ReadOnlyDrawer : PropertyDrawer
     public override void OnGUI(Rect position, SerializedProperty property, GUIContent label)
     {
         // Saving previous GUI enabled value
-        var previousGUIState = GUI.enabled;
+        bool previousGUIState = GUI.enabled;
         // Disabling edit for property
         GUI.enabled = false;
         // Drawing Property

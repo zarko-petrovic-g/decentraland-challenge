@@ -1,7 +1,7 @@
-﻿using System;
+using System;
 using UnityEngine;
 
-public class Warrior : UnitBase
+public abstract class RangedUnit : UnitBase
 {
     public override ArmyStrategy ArmyStrategy
     {
@@ -10,9 +10,9 @@ public class Warrior : UnitBase
             UnitStrategy = value switch
             {
                 ArmyStrategy.Basic => new StrategyBasic(this),
-                ArmyStrategy.Defensive => new MeleeStrategyDefensive(this),
+                ArmyStrategy.Defensive => new RangedStrategyDefensive(this),
                 ArmyStrategy.Bloodthirsty => new StrategyBloodthirsty(this),
-                ArmyStrategy.Cowardly => new MeleeStrategyCowardly(this),
+                ArmyStrategy.Cowardly => new RangedStrategyCowardly(this),
                 _ => throw new ArgumentOutOfRangeException()
             };
         }
@@ -26,19 +26,22 @@ public class Warrior : UnitBase
         }
 
         Vector3 position = CachedTransform.position;
+        Vector3 targetPosition = enemy.CachedTransform.position;
 
-        if(Vector3.Distance(position, enemy.CachedTransform.position) > AttackRange)
+        if(Vector3.Distance(position, targetPosition) > AttackRange)
         {
             return;
         }
 
         attackCooldown = MaxAttackCooldown;
 
+        LaunchProjectile(position, targetPosition);
+
         if(hasAnimator)
         {
             animator.SetTrigger(AttackTriggerId);
         }
-
-        enemy.Hit(AttackDamage, position);
     }
+
+    protected abstract void LaunchProjectile(Vector3 position, Vector3 targetPosition);
 }

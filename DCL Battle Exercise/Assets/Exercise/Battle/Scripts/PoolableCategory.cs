@@ -1,4 +1,5 @@
 public enum PoolableCategory
 {
-    ArcherArrow
+    ArcherArrow,
+    CannonBall
 }

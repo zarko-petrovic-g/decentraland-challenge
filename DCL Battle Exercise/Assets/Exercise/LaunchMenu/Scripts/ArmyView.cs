@@ -22,6 +22,12 @@ public class ArmyView : MonoBehaviour, IArmyView
     private TextMeshProUGUI archersLabel;
 
     [SerializeField]
+    private Slider cannonsCount;
+
+    [SerializeField]
+    private TextMeshProUGUI cannonsLabel;
+
+    [SerializeField]
     private TMP_Dropdown strategyDropdown;
 
     private EnumDropdownWrapper<ArmyStrategy> enumDropdown;
@@ -31,6 +37,7 @@ public class ArmyView : MonoBehaviour, IArmyView
     {
         warriorsCount.onValueChanged.AddListener(OnWarriorsCountChanged);
         archersCount.onValueChanged.AddListener(OnArchersCountChanged);
+        cannonsCount.onValueChanged.AddListener(OnCannonsCountChanged);
         enumDropdown = new EnumDropdownWrapper<ArmyStrategy>(strategyDropdown);
         enumDropdown.OnValueChanged += OnStrategyChanged;
     }
@@ -47,6 +54,8 @@ public class ArmyView : MonoBehaviour, IArmyView
         warriorsLabel.text = model.Warriors.ToString();
         archersCount.SetValueWithoutNotify(model.Archers);
         archersLabel.text = model.Archers.ToString();
+        cannonsCount.SetValueWithoutNotify(model.Cannons);
+        cannonsLabel.text = model.Cannons.ToString();
         enumDropdown.SetValueWithoutNotify(model.Strategy);
     }
 
@@ -65,6 +74,12 @@ public class ArmyView : MonoBehaviour, IArmyView
     {
         presenter?.UpdateArchers((int)value);
         archersLabel.text = ((int)value).ToString();
+    }
+
+    private void OnCannonsCountChanged(float value)
+    {
+        presenter?.UpdateCannons((int)value);
+        cannonsLabel.text = ((int)value).ToString();
     }
 
     private void OnStrategyChanged(ArmyStrategy strategy)

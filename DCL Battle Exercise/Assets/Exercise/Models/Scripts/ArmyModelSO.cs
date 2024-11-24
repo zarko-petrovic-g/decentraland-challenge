@@ -9,25 +9,32 @@ using UnityEngine;
 [CreateAssetMenu(menuName = "Create ArmyModel", fileName = "ArmyModel", order = 0)]
 public class ArmyModelSO : ScriptableObject, IArmyModel
 {
-    [ReadOnlyAttribute, SerializeField] private int warriorsValue = 100;
+    [ReadOnly, SerializeField] private int warriorsValue = 100;
     public int Warriors
     {
         get => warriorsValue;
         set => warriorsValue = value;
     }
 
-    [ReadOnlyAttribute, SerializeField] private int archersValue = 100;
+    [ReadOnly, SerializeField] private int archersValue = 100;
     public int Archers
     {
         get => archersValue;
         set => archersValue = value;
     }
 
-    [ReadOnlyAttribute, SerializeField] private ArmyStrategy strategyValue = ArmyStrategy.Basic;
+    [ReadOnly, SerializeField] private int cannonsValue = 100;
+    public int Cannons
+    {
+        get => cannonsValue;
+        set => cannonsValue = value;
+    }
+    
+    [ReadOnly, SerializeField] private ArmyStrategy strategyValue = ArmyStrategy.Basic;
     public ArmyStrategy Strategy
     {
         get => strategyValue;
         set => strategyValue = value;
     }
-    public int TotalUnits => archersValue + warriorsValue;
+    public int TotalUnits => archersValue + warriorsValue + cannonsValue;
 }

@@ -26,7 +26,7 @@ public abstract class UnitBase : MonoBehaviour
 
     private Vector3 lastPosition;
 
-    protected new Renderer renderer;
+    protected Renderer[] renderers;
 
     protected IUnitStrategy UnitStrategy;
 
@@ -45,8 +45,14 @@ public abstract class UnitBase : MonoBehaviour
 
     public Color Color
     {
-        set => renderer.material.color = value;
-        get => renderer.material.color;
+        set
+        {
+            foreach(Renderer r in renderers)
+            {
+                r.material.color = value;
+            }
+        }
+        get => renderers[0].material.color;
     }
 
     public abstract ArmyStrategy ArmyStrategy { set; }
@@ -65,7 +71,7 @@ public abstract class UnitBase : MonoBehaviour
         CachedGameObject = gameObject;
         animator = GetComponentInChildren<Animator>();
         hasAnimator = animator != null;
-        renderer = GetComponentInChildren<Renderer>();
+        renderers = GetComponentsInChildren<Renderer>();
         CurrentHealth = MaxHealth;
 
         // name += "_" + GetHashCode();

@@ -12,7 +12,7 @@ public class Army
     public Vector3 Center { get; private set; }
 
     public void InstantiateUnits(IArmyModel model, Bounds bounds, Warrior warriorPrefab, Archer archerPrefab,
-        Color color, Army enemyArmy, Battle battle)
+        Cannon cannonPrefab, Color color, Army enemyArmy, Battle battle)
     {
         unitsGrid = new UnitsGrid(battle.BattlefieldSize, battle.PartitionSize, model.TotalUnits);
 
@@ -26,6 +26,11 @@ public class Army
         for(int i = 0; i < model.Archers; i++)
         {
             InstantiateUnit(archerPrefab, bounds, model.Strategy, color, enemyArmy, battle, unitsInstantiated++);
+        }
+
+        for(int i = 0; i < model.Cannons; i++)
+        {
+            InstantiateUnit(cannonPrefab, bounds, model.Strategy, color, enemyArmy, battle, unitsInstantiated++);
         }
 
         Center = Utils.GetCenter(units);
@@ -80,7 +85,7 @@ public class Army
 
     public void EvadeOtherUnits(UnitBase unit, float minUnitDistance)
     {
-        unitsGrid.EvadeOtherUnits(unit, minUnitDistance);
+        unitsGrid.EvadeOtherUnits(unit, minUnitDistance, unit.EnemyArmy != this);
     }
 
     /// <summary>
@@ -97,5 +102,10 @@ public class Army
     public bool FindMinHealthUnit(Vector3 position, float radius, out UnitBase unit)
     {
         return unitsGrid.FindMinHealthUnit(position, radius, out unit);
+    }
+
+    public int GetUnits(Vector3 position, float damageRadius, UnitBase[] hits)
+    {
+        return unitsGrid.GetUnits(position, damageRadius, hits);
     }
 }

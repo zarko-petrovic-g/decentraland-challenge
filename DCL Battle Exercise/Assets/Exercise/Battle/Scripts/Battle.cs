@@ -16,6 +16,9 @@ public class Battle : MonoBehaviour
     private Archer archerPrefab;
 
     [SerializeField]
+    private Cannon cannonPrefab;
+
+    [SerializeField]
     private BoxCollider leftArmySpawnBounds;
 
     [SerializeField]
@@ -55,10 +58,12 @@ public class Battle : MonoBehaviour
         Army1 = new Army();
         Army2 = new Army();
         // TODO it's not really scalable if there are more types of units
-        Army1.InstantiateUnits(army1Model, leftArmySpawnBounds.bounds, warriorPrefab, archerPrefab, army1Color, Army2,
+        Army1.InstantiateUnits(army1Model, leftArmySpawnBounds.bounds, warriorPrefab, archerPrefab, cannonPrefab,
+            army1Color, Army2,
             this);
 
-        Army2.InstantiateUnits(army2Model, rightArmySpawnBounds.bounds, warriorPrefab, archerPrefab, army2Color, Army1,
+        Army2.InstantiateUnits(army2Model, rightArmySpawnBounds.bounds, warriorPrefab, archerPrefab, cannonPrefab,
+            army2Color, Army1,
             this);
 
         Center = CalculateCenter();
@@ -71,12 +76,28 @@ public class Battle : MonoBehaviour
             arrows[i] = Instantiate(archerPrefab.ArrowPrefab);
         }
 
+        int cannonBallCount = army1Model.Cannons + army2Model.Cannons;
+        var cannonBalls = new CannonBall[cannonBallCount];
+        int unitsInDamageDiameter = Mathf.CeilToInt(cannonPrefab.CannonStats.damageRadius * 2f / minUnitDistance);
+        int cannonballMaxHits = unitsInDamageDiameter * unitsInDamageDiameter;
+
+        for(int i = 0; i < cannonBallCount; i++)
+        {
+            cannonBalls[i] = Instantiate(cannonPrefab.CannonBallPrefab);
+            cannonBalls[i].MaxHits = cannonballMaxHits;
+        }
+
         Pool = new Pool(new[]
         {
             new Pool.CategoryData
             {
                 Category = PoolableCategory.ArcherArrow,
                 Objects = arrows
+            },
+            new Pool.CategoryData
+            {
+                Category = PoolableCategory.CannonBall,
+                Objects = cannonBalls
             }
         });
     }

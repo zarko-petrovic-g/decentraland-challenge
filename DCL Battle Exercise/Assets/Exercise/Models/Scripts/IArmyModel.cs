@@ -3,6 +3,7 @@ public interface IArmyModel
 {
     int Warriors { get; set; }
     int Archers { get; set; }
+    int Cannons { get; set; }
     ArmyStrategy Strategy { get; set; }
     int TotalUnits { get; }
 }
