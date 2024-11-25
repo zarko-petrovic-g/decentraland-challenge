@@ -14,13 +14,11 @@ public class UnitsGrid
     private readonly int gridSize;
     private readonly float halfBattlefieldSize;
     private readonly int id = idCounter++;
-    private float battlefieldSize;
 
     public UnitsGrid(float battlefieldSize, float cellSize, int unitCount)
     {
         gridSize = Mathf.CeilToInt(battlefieldSize / cellSize);
         this.cellSize = cellSize;
-        this.battlefieldSize = battlefieldSize;
         halfBattlefieldSize = battlefieldSize / 2f;
         grid = new List<UnitBase>[gridSize, gridSize];
 
