@@ -45,7 +45,7 @@ public class Battle : MonoBehaviour
     private bool gameOver;
 
     public float BattlefieldSize =>
-        battleRadius * 2.5f; // *2 should be just enough but add some extra space just in case
+        battleRadius * 3f; // *2 should be just enough but add some extra space just in case
 
     public float PartitionSize => partitionSize;
 
