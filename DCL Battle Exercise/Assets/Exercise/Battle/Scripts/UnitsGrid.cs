@@ -171,10 +171,10 @@ public class UnitsGrid
 
                 UnitBase oldCandidate = closest;
 
-                candidateFound = GetClosest(position, x, z, checkRadiusCells, checkRadiusCells - radiusCells,
-                    out closest, out distance);
+                bool newCandidateFound = GetClosest(position, x, z, checkRadiusCells, checkRadiusCells - radiusCells,
+                    out UnitBase newCandidate, out float newDistance);
 
-                if(candidateFound && closest == oldCandidate)
+                if(!newCandidateFound || newCandidate == oldCandidate)
                 {
                     // Debug.Log("No new candidate in larger radius" + " ["+id+"]");
                     break;
@@ -184,6 +184,8 @@ public class UnitsGrid
                 // this is a new candidate, so we need to check the next square of cells
                 // in the next iteration
                 radiusCells = checkRadiusCells;
+                closest = newCandidate;
+                distance = newDistance;
             }
             else
             {
