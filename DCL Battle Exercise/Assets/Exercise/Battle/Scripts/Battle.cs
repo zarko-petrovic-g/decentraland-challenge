@@ -1,4 +1,5 @@
 using System;
+using System.Linq;
 using UnityEngine;
 
 public class Battle : MonoBehaviour
@@ -10,13 +11,7 @@ public class Battle : MonoBehaviour
     private ArmyModelSO army2Model;
 
     [SerializeField]
-    private Warrior warriorPrefab;
-
-    [SerializeField]
-    private Archer archerPrefab;
-
-    [SerializeField]
-    private Cannon cannonPrefab;
+    private UnitPrefab[] unitPrefabs;
 
     [SerializeField]
     private BoxCollider leftArmySpawnBounds;
@@ -42,7 +37,7 @@ public class Battle : MonoBehaviour
     [SerializeField]
     private float gravity = 9.81f;
 
-    private bool gameOver;
+    private bool gameOverAnnounced;
 
     public float BattlefieldSize =>
         battleRadius * 3f; // *2 should be just enough but add some extra space just in case
@@ -56,22 +51,33 @@ public class Battle : MonoBehaviour
 
     public Pool Pool { get; private set; }
 
+    public bool IsGameOver => Army1.UnitCount == 0 || Army2.UnitCount == 0;
+    public Army Winner
+    {
+        get
+        {
+            if(!IsGameOver)
+            {
+                return null;
+            }
+
+            return Army1.UnitCount == 0 ? Army2 : Army1;
+        }
+    }
+
     private void Awake()
     {
         Army1 = new Army();
         Army2 = new Army();
-        // TODO it's not really scalable if there are more types of units
-        Army1.InstantiateUnits(army1Model, leftArmySpawnBounds.bounds, warriorPrefab, archerPrefab, cannonPrefab,
-            army1Color, Army2,
-            this);
 
-        Army2.InstantiateUnits(army2Model, rightArmySpawnBounds.bounds, warriorPrefab, archerPrefab, cannonPrefab,
-            army2Color, Army1,
-            this);
+        Army1.InstantiateUnits(army1Model, leftArmySpawnBounds.bounds, army1Color, Army2, unitPrefabs, this);
+        Army2.InstantiateUnits(army2Model, rightArmySpawnBounds.bounds, army2Color, Army1, unitPrefabs, this);
 
         Center = CalculateCenter();
 
-        int arrowCount = army1Model.Archers + army2Model.Archers;
+        UnitPrefab archerPrefabData = unitPrefabs.First(prefab => prefab.type == UnitType.Archer);
+        var archerPrefab = archerPrefabData.prefab as Archer;
+        int arrowCount = army1Model.GetUnitCount(UnitType.Archer) + army2Model.GetUnitCount(UnitType.Archer);
         var arrows = new ArcherArrow[arrowCount];
 
         for(int i = 0; i < arrowCount; i++)
@@ -79,10 +85,12 @@ public class Battle : MonoBehaviour
             arrows[i] = Instantiate(archerPrefab.ArrowPrefab);
         }
 
-        int cannonBallCount = army1Model.Cannons + army2Model.Cannons;
-        var cannonBalls = new CannonBall[cannonBallCount];
+        UnitPrefab cannonPrefabData = unitPrefabs.First(prefab => prefab.type == UnitType.Cannon);
+        var cannonPrefab = cannonPrefabData.prefab as Cannon;
         int unitsInDamageDiameter = Mathf.CeilToInt(cannonPrefab.CannonStats.damageRadius * 2f / minUnitDistance);
         int cannonballMaxHits = unitsInDamageDiameter * unitsInDamageDiameter;
+        int cannonBallCount = army1Model.GetUnitCount(UnitType.Cannon) + army2Model.GetUnitCount(UnitType.Cannon);
+        var cannonBalls = new CannonBall[cannonBallCount];
 
         for(int i = 0; i < cannonBallCount; i++)
         {
@@ -139,10 +147,10 @@ public class Battle : MonoBehaviour
 
     public void UnitDied(UnitBase unit)
     {
-        if((Army1.UnitCount == 0 || Army2.UnitCount == 0) && !gameOver)
+        if(IsGameOver && !gameOverAnnounced)
         {
-            OnGameOver?.Invoke(Army1.UnitCount == 0 ? Army2 : Army1);
-            gameOver = true;
+            OnGameOver?.Invoke(Winner);
+            gameOverAnnounced = true;
         }
     }
 

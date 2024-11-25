@@ -1,17 +1,10 @@
-public interface IArmyModel
+using System.Collections.Generic;
 
+public interface IArmyModel
 {
-    int Warriors { get; set; }
-    int Archers { get; set; }
-    int Cannons { get; set; }
+    int GetUnitCount(UnitType unitType);
+    void SetUnitCount(UnitType unitType, int count);
+    IEnumerable<UnitCount> UnitCounts { get; }
     ArmyStrategy Strategy { get; set; }
     int TotalUnits { get; }
-}
-
-public enum ArmyStrategy
-{
-    Basic = 0,
-    Defensive = 1,
-    Bloodthirsty = 2,
-    Cowardly = 3
 }

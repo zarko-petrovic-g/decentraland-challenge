@@ -1,6 +1,7 @@
+using System;
+using System.Collections.Generic;
 using TMPro;
 using UnityEngine;
-using UnityEngine.UI;
 
 public interface IArmyView
 {
@@ -10,76 +11,52 @@ public interface IArmyView
 public class ArmyView : MonoBehaviour, IArmyView
 {
     [SerializeField]
-    private Slider warriorsCount;
+    private UnitCountView unitCountPrefab;
 
     [SerializeField]
-    private TextMeshProUGUI warriorsLabel;
-
-    [SerializeField]
-    private Slider archersCount;
-
-    [SerializeField]
-    private TextMeshProUGUI archersLabel;
-
-    [SerializeField]
-    private Slider cannonsCount;
-
-    [SerializeField]
-    private TextMeshProUGUI cannonsLabel;
+    private Transform unitCountsParent;
 
     [SerializeField]
     private TMP_Dropdown strategyDropdown;
 
-    private EnumDropdownWrapper<ArmyStrategy> enumDropdown;
+    private readonly List<UnitCountView> unitCountUIs = new List<UnitCountView>();
     private IArmyPresenter presenter;
+
+    private EnumDropdownWrapper<ArmyStrategy> wrappedStrategyDropdown;
 
     private void Awake()
     {
-        warriorsCount.onValueChanged.AddListener(OnWarriorsCountChanged);
-        archersCount.onValueChanged.AddListener(OnArchersCountChanged);
-        cannonsCount.onValueChanged.AddListener(OnCannonsCountChanged);
-        enumDropdown = new EnumDropdownWrapper<ArmyStrategy>(strategyDropdown);
-        enumDropdown.OnValueChanged += OnStrategyChanged;
+        foreach(UnitType unitType in Enum.GetValues(typeof(UnitType)))
+        {
+            UnitCountView unitCountView = Instantiate(unitCountPrefab, unitCountsParent);
+            unitCountView.UnitType = unitType;
+            unitCountUIs.Add(unitCountView);
+        }
+
+        wrappedStrategyDropdown = new EnumDropdownWrapper<ArmyStrategy>(strategyDropdown);
+        wrappedStrategyDropdown.OnValueChanged += OnStrategyChanged;
     }
 
     private void OnDestroy()
     {
-        enumDropdown.OnValueChanged -= OnStrategyChanged;
-        enumDropdown?.Dispose();
+        wrappedStrategyDropdown.OnValueChanged -= OnStrategyChanged;
+        wrappedStrategyDropdown?.Dispose();
     }
 
     public void UpdateWithModel(IArmyModel model)
     {
-        warriorsCount.SetValueWithoutNotify(model.Warriors);
-        warriorsLabel.text = model.Warriors.ToString();
-        archersCount.SetValueWithoutNotify(model.Archers);
-        archersLabel.text = model.Archers.ToString();
-        cannonsCount.SetValueWithoutNotify(model.Cannons);
-        cannonsLabel.text = model.Cannons.ToString();
-        enumDropdown.SetValueWithoutNotify(model.Strategy);
+        foreach(UnitCountView unitCountUI in unitCountUIs)
+        {
+            unitCountUI.SetWithoutNotify(model.GetUnitCount(unitCountUI.UnitType));
+            unitCountUI.Bind(value => { presenter?.UpdateUnitCount(unitCountUI.UnitType, (int)value); });
+        }
+
+        wrappedStrategyDropdown.SetValueWithoutNotify(model.Strategy);
     }
 
     public void BindPresenter(IArmyPresenter presenter)
     {
         this.presenter = presenter;
-    }
-
-    private void OnWarriorsCountChanged(float value)
-    {
-        presenter?.UpdateWarriors((int)value);
-        warriorsLabel.text = ((int)value).ToString();
-    }
-
-    private void OnArchersCountChanged(float value)
-    {
-        presenter?.UpdateArchers((int)value);
-        archersLabel.text = ((int)value).ToString();
-    }
-
-    private void OnCannonsCountChanged(float value)
-    {
-        presenter?.UpdateCannons((int)value);
-        cannonsLabel.text = ((int)value).ToString();
     }
 
     private void OnStrategyChanged(ArmyStrategy strategy)

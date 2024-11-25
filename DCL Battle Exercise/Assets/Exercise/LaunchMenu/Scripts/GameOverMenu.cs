@@ -24,8 +24,15 @@ public class GameOverMenu : MonoBehaviour
 
     private void Start()
     {
-        content.gameObject.SetActive(false);
-        battle.OnGameOver += OnGameOver;
+        if(battle.IsGameOver)
+        {
+            OnGameOver(battle.Winner);
+        }
+        else
+        {
+            content.gameObject.SetActive(false);
+            battle.OnGameOver += OnGameOver;
+        }
     }
 
     private void OnGameOver(Army winner)

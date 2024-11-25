@@ -1,9 +1,7 @@
 public interface IArmyPresenter
 {
-    void UpdateWarriors(int warriors);
-    void UpdateArchers(int archers);
-    void UpdateCannons(int cannons);
     void UpdateStrategy(ArmyStrategy strategy);
+    void UpdateUnitCount(UnitType unitType, int value);
 }
 
 public class ArmyPresenter : IArmyPresenter
@@ -18,19 +16,9 @@ public class ArmyPresenter : IArmyPresenter
         this.view.UpdateWithModel(model);
     }
 
-    public void UpdateWarriors(int warriors)
+    public void UpdateUnitCount(UnitType unitType, int value)
     {
-        model.Warriors = warriors;
-    }
-
-    public void UpdateArchers(int archers)
-    {
-        model.Archers = archers;
-    }
-
-    public void UpdateCannons(int cannons)
-    {
-        model.Cannons = cannons;
+        model.SetUnitCount(unitType, value);
     }
 
     public void UpdateStrategy(ArmyStrategy strategy)

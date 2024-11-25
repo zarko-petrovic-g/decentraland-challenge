@@ -1037,9 +1037,13 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   army1Model: {fileID: 11400000, guid: a6c80dd762eaa2942967f75607f7c7a3, type: 2}
   army2Model: {fileID: 11400000, guid: 72f780312aa8e3c40b08fe23dd9b7117, type: 2}
-  warriorPrefab: {fileID: 4074248562238301595, guid: d84cac85cdce1be419a5e701d52e9cee, type: 3}
-  archerPrefab: {fileID: 8284140959867094785, guid: d5b353320e661744aa811b1a632ee53e, type: 3}
-  cannonPrefab: {fileID: 2972150935748492856, guid: 5def395065aa9e844bead289faac47d1, type: 3}
+  unitPrefabs:
+  - type: 0
+    prefab: {fileID: 4074248562238301595, guid: d84cac85cdce1be419a5e701d52e9cee, type: 3}
+  - type: 1
+    prefab: {fileID: 8284140959867094785, guid: d5b353320e661744aa811b1a632ee53e, type: 3}
+  - type: 2
+    prefab: {fileID: 2972150935748492856, guid: 5def395065aa9e844bead289faac47d1, type: 3}
   leftArmySpawnBounds: {fileID: 764418157}
   rightArmySpawnBounds: {fileID: 443984563}
   army1Color: {r: 0.2305195, g: 0.75, b: 0.7012987, a: 1}
@@ -1047,6 +1051,7 @@ MonoBehaviour:
   minUnitDistance: 2
   battleRadius: 80
   partitionSize: 10
+  gravity: 9.81
 --- !u!4 &1951697636
 Transform:
   m_ObjectHideFlags: 0

@@ -1,4 +1,5 @@
 ﻿using System.Collections.Generic;
+using System.Linq;
 using UnityEngine;
 
 public class Army
@@ -11,26 +12,22 @@ public class Army
     public int UnitCount => units.Count;
     public Vector3 Center { get; private set; }
 
-    public void InstantiateUnits(IArmyModel model, Bounds bounds, Warrior warriorPrefab, Archer archerPrefab,
-        Cannon cannonPrefab, Color color, Army enemyArmy, Battle battle)
+    public void InstantiateUnits(IArmyModel model, Bounds bounds, Color color, Army enemyArmy, UnitPrefab[] unitPrefabs,
+        Battle battle)
     {
         unitsGrid = new UnitsGrid(battle.BattlefieldSize, battle.PartitionSize, model.TotalUnits);
 
         int unitsInstantiated = 0;
 
-        for(int i = 0; i < model.Warriors; i++)
+        foreach(UnitCount unitCount in model.UnitCounts)
         {
-            InstantiateUnit(warriorPrefab, bounds, model.Strategy, color, enemyArmy, battle, unitsInstantiated++);
-        }
+            UnitPrefab unitPrefab = unitPrefabs.First(prefab => prefab.type == unitCount.type);
 
-        for(int i = 0; i < model.Archers; i++)
-        {
-            InstantiateUnit(archerPrefab, bounds, model.Strategy, color, enemyArmy, battle, unitsInstantiated++);
-        }
-
-        for(int i = 0; i < model.Cannons; i++)
-        {
-            InstantiateUnit(cannonPrefab, bounds, model.Strategy, color, enemyArmy, battle, unitsInstantiated++);
+            for(int i = 0; i < unitCount.count; i++)
+            {
+                InstantiateUnit(unitPrefab.prefab, bounds, model.Strategy, color, enemyArmy, battle,
+                    unitsInstantiated++);
+            }
         }
 
         Center = Utils.GetCenter(units);
