@@ -22,8 +22,6 @@ public class CannonBall : Projectile
         position.y += speedVertical;
         CachedTransform.position = position;
 
-        Debug.Log($"CannonBall update {position} {speedVertical} {GetHashCode()}");
-
         if(position.y < -speedVertical)
         {
             int hitCount = enemyArmy.GetUnits(position, damageRadius, hits);
