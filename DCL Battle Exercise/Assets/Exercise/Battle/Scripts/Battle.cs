@@ -39,6 +39,9 @@ public class Battle : MonoBehaviour
     [SerializeField]
     private float partitionSize = 10f;
 
+    [SerializeField]
+    private float gravity = 9.81f;
+
     private bool gameOver;
 
     public float BattlefieldSize =>
@@ -85,6 +88,7 @@ public class Battle : MonoBehaviour
         {
             cannonBalls[i] = Instantiate(cannonPrefab.CannonBallPrefab);
             cannonBalls[i].MaxHits = cannonballMaxHits;
+            cannonBalls[i].Gravity = gravity;
         }
 
         Pool = new Pool(new[]

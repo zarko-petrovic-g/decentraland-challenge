@@ -1,8 +1,13 @@
+using System;
 using UnityEngine;
 
 public class CannonBall : Projectile
 {
+    private const float SpeedMultiplier = 0.01f;
     private float damageRadius;
+
+    [NonSerialized]
+    public float Gravity;
 
     private UnitBase[] hits;
     private float speedVertical;
@@ -18,7 +23,7 @@ public class CannonBall : Projectile
     {
         Vector3 position = CachedTransform.position;
         position += movement;
-        speedVertical += Physics.gravity.y * 0.01f;
+        speedVertical -= Gravity * SpeedMultiplier;
         position.y += speedVertical;
         CachedTransform.position = position;
 
@@ -39,7 +44,7 @@ public class CannonBall : Projectile
         Color color, Pool pool)
     {
         float distance = Vector3.Distance(position, target);
-        speedVertical = Mathf.Sqrt(distance * Physics.gravity.magnitude * 0.01f / 2f);
+        speedVertical = Mathf.Sqrt(distance * Gravity * SpeedMultiplier / 2f);
         // we are firing at 45 degrees so the horizontal speed is the same as the vertical speed
         float speedHorizontal = speedVertical;
         this.damageRadius = damageRadius;
