@@ -101,7 +101,32 @@ public abstract class UnitBase : MonoBehaviour
     public event Action<UnitBase> OnDeath;
     public event Action<UnitBase, Vector3> OnMove;
 
-    public abstract void Attack(UnitBase enemy);
+    public void Attack(UnitBase enemy)
+    {
+        if(attackCooldown > 0)
+        {
+            return;
+        }
+
+        Vector3 position = CachedTransform.position;
+        Vector3 targetPosition = enemy.CachedTransform.position;
+
+        if(Vector3.Distance(position, targetPosition) > AttackRange)
+        {
+            return;
+        }
+
+        attackCooldown = MaxAttackCooldown;
+
+        if(hasAnimator)
+        {
+            animator.SetTrigger(AttackTriggerId);
+        }
+
+        PerformAttack(enemy);
+    }
+
+    protected abstract void PerformAttack(UnitBase enemy);
 
     /// <summary>
     ///     Use for gameplay unit movement. If you want to teleport unit, use <see cref="SetPosition" /> instead.
